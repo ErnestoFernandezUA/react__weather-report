@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import * as convert from 'xml-js';
 import { Country, CountryXML } from './types/Country';
@@ -12,7 +12,7 @@ function App() {
   useEffect(() => {
     const loadCountries = async () => {
       try {
-        const response = await axios.get('https://cors-anywhere.herokuapp.com/http://api.geonames.org/countryInfo?username=efernandez', { responseType: 'text' });
+        const response = await axios.get('https://api.geonames.org/countryInfo?username=efernandez', { responseType: 'text' });
         const result = convert.xml2js(response.data, { compact: true }) as CountryXML;
         
         const data: Country[] = result.geonames.country.map((el) => ({
