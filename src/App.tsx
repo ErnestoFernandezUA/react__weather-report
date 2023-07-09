@@ -12,7 +12,7 @@ function App() {
   useEffect(() => {
     const loadCountries = async () => {
       try {
-        const response = await axios.get('https://api.geonames.org/countryInfo?username=efernandez', { responseType: 'text' });
+        const response = await axios.get('http://api.geonames.org/countryInfo?username=efernandez', { responseType: 'text' });
         const result = convert.xml2js(response.data, { compact: true }) as CountryXML;
         
         const data: Country[] = result.geonames.country.map((el) => ({
