@@ -1,75 +1,85 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import * as convert from 'xml-js';
-import { Country, CountryXML } from './types/Country';
-
+import { CityFullData } from './types/City';
+import { Table } from './components/Table/Table';
+import data from './data/data.json';
 import './App.css';
 
 function App() {
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [loadError, setLoadError] = useState<Error | null>(null);
+  const [countries, setCountries] = useState<{ [key: string]: CityFullData[]} | null>(null);
+  const [keys, setKeys] = useState<{ value: string; label: string }[] | null>(null);
+  const [country, setCountry] = useState<CityFullData[] | null>(null);
+  const [selectedCities, setSelectedCities] = useState <CityFullData[]>([]);
+  const [currentCity, setCurrentCity] = useState <CityFullData | null>(null);
 
-  useEffect(() => {
-    const loadCountries = async () => {
-      try {
-        const response = await axios.get('http://api.geonames.org/countryInfo?username=efernandez', { responseType: 'text' });
-        const result = convert.xml2js(response.data, { compact: true }) as CountryXML;
-        
-        const data: Country[] = result.geonames.country.map((el) => ({
-          countryName: el.countryName._text,
-          countryCode: el.countryCode._text,
-        }));
-        
-        console.log('data = ', data.sort((a, b) => a.countryName.localeCompare(b.countryName)));
-        setCountries(data);
-      } catch (error) {
-        setLoadError(error as Error);
-      }
-    };
-    
-    loadCountries();
-  }, []);
+  useEffect(() => {   
+    setCountries(data.data);
+    setKeys(data.keys);
+  }, [])
 
-
-  const loadCities = async (countryCode: string) => {
-    try {
-      const response = await axios.get(`http://api.geonames.org/searchJSON?username=efernandez&country=${countryCode}&maxRows=1000&style=SHORT`);
-
-      console.log(response);
-
-    } catch (error) {
-      setLoadError(error as Error);
+  const onChangeCountryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
+    if (countries && e.currentTarget.value in countries) {
+      setCountry(countries[e.currentTarget.value]);
     }
   };
 
-  const onChangeHandler = (e: React.FormEvent<HTMLSelectElement>) => {
-    console.log('onChangeHandler');
-    loadCities(e.currentTarget.value);
+  const onClickSelectHandler = (e: React.MouseEvent<HTMLElement, MouseEvent>, city: CityFullData, isSelected: boolean) => {
+    e.preventDefault();
+    console.log('onClickSelectHandler');
+
+    if (isSelected) {
+      setSelectedCities(selectedCities => selectedCities.filter(c => c.geoNameId !== city.geoNameId));
+    } else {
+      setSelectedCities(selectedCities => [ ...selectedCities, city ]);
+    }
   };
 
-  useEffect(() => {
-    if (loadError) {
-      console.log(loadError);
-    }
-  }, [loadError])
+  const onClickCurrentHandler = (city: CityFullData) => {
+    console.log('onClickCurrentHandler');
 
-   return (
+    setCurrentCity(city);
+  };
+
+  if (!keys || !countries) {
+    return (
+      <div>
+        <h1>data loading...</h1>
+      </div>
+    )
+  }
+
+  return (
     <div className="App">
       <h1>Weather report</h1>
+      <h2>Selected cities: {selectedCities.length}</h2>
 
-      <select 
-        name="countries" 
-        id="countries"
-        onChange={(e) => onChangeHandler(e)}
-      >
-        {countries.map(el => 
-          <option 
-            key={el.countryName}
-            value={el.countryCode}
+      <div className="App_chart">
+        {currentCity?.name}
+      </div>
+
+      <div className="App__table">
+        <label htmlFor="countries">
+          <select 
+            name="countries" 
+            id="countries"
+            onChange={(e) => onChangeCountryHandler(e)}
           >
-            {el.countryName}
-        </option>)}
-      </select>
+            {keys.map(el => 
+              <option 
+                key={el.value}
+                value={el.value}
+              >
+                {el.label}
+            </option>)}
+          </select>
+        </label>
+
+        <Table 
+          country={country} 
+          onClickSelectHandler={onClickSelectHandler}
+          onClickCurrentHandler={onClickCurrentHandler}
+          selectedCities={selectedCities}
+        />
+      </div>
     </div>
   );
 }

@@ -1,0 +1,8 @@
+.City {
+  width: 100%;
+  cursor: pointer;
+
+  &--selected {
+    background-color: rgb(196, 196, 233);
+  }
+}
