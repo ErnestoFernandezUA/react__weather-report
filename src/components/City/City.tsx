@@ -1,55 +1,51 @@
-import { FC, useEffect, useState } from "react";
-import { CityFullData } from "../../types/City";
-import axios from "axios";
+import { FC, useEffect } from "react";
 import classnames from 'classnames';
-import { WeatherData } from "../../types/Weather";
+import { CityData } from "../../types/City";
 
 import './City.scss';
 
 interface CityProps {
-  city: CityFullData;
-  selectedCities: CityFullData[];
-  onClickSelectHandler: (e: React.MouseEvent<HTMLElement, MouseEvent>, city: CityFullData, isSelected: boolean) => void;
-  onClickCurrentHandler: (city: CityFullData) => void;
+  city: CityData;
+  selectedCities: CityData[];
+  onClickSelectHandler: (e: React.MouseEvent<HTMLElement, MouseEvent>, city: CityData, isSelected: boolean) => void;
+  onClickCurrentHandler: (city: CityData) => void;
+  currentCity: CityData | null;
 }
 
-export const City:FC<CityProps> = ({ city, onClickSelectHandler, selectedCities, onClickCurrentHandler }) => {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
+export const City:FC<CityProps> = ({
+  city,
+  onClickSelectHandler,
+  selectedCities,
+  onClickCurrentHandler,
+  currentCity,
+}) => {
+  const { name, population, weather, countryCode } = city;
 
   useEffect(() => {
-    const loadWeatherReport = async () => {
-      try {
-        console.log(city);
-
-        const response = await axios.get<WeatherData>(`https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&hourly=winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`);
-
-        setWeather(response.data);
-      } catch (error) {
-        console.error(`Error during loading loadWeatherReport ${city.name}`, error);
-      }
-    };
-
-    loadWeatherReport();
-  }, [city])
-
-  useEffect(() => {
-
-  }, [weather, selectedCities])
+    // console.log('render', city, city.weather);
+  }, [city, selectedCities])
 
   const isSelected: boolean = Boolean(selectedCities.find(c => c.geoNameId === city.geoNameId));
-  const AverageWind = weather && Math.ceil(weather?.hourly.winddirection_10m.reduce((acc, el) => acc + el) / weather?.hourly.winddirection_10m.length);
+  const isCurrent = currentCity?.geoNameId === city.geoNameId;
+  const maxT = weather ? weather?.dailyMax + ' ' +  weather?.daily_units?.temperature_2m_max : 'No data';
+  const minT = weather ? weather?.dailyMin + ' ' +  weather?.daily_units?.temperature_2m_min : 'No data';
+  const averageWind = weather ? weather?.averageWind : 'No data';
 
   return (
     <tr 
-      className={classnames('City', { 'City--selected': isSelected })}
+      className={classnames('City',
+        { 'City--selected': isSelected }, 
+        { 'City--current': isCurrent },
+        )}
       onClick={() => onClickCurrentHandler(city)}
       onContextMenu={(e) => onClickSelectHandler(e, city, isSelected)}
     >
-      <td>{city.name}</td>
-      <td>{city.population}</td>
-      <td>{weather?.daily.temperature_2m_min} {weather?.daily_units.temperature_2m_min}</td>
-      <td>{weather?.daily.temperature_2m_max} {weather?.daily_units.temperature_2m_max}</td>
-      <td>{AverageWind}</td>
+      <td>{name}</td>
+      <td>{countryCode}</td>
+      <td>{population}</td>
+      <td>{maxT} </td>
+      <td>{minT}</td>
+      <td>{averageWind}</td>
     </tr>
   )
 };

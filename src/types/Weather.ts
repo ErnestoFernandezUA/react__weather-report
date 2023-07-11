@@ -33,3 +33,10 @@ export interface WeatherData {
   timezone_abbreviation: string;
   utc_offset_seconds: number;
 }
+
+export interface WeatherAverage {
+  dailyMax: number;
+  dailyMin: number;
+  averageWind: number;
+  daily_units: DailyUnits;
+}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CityFullData } from "../../types/City";
+import { CityData } from "../../types/City";
 import axios from "axios";
 import * as convert from 'xml-js';
 import { CountriesXML } from "../../types/Country";
@@ -19,7 +19,7 @@ const FileInput = () => {
       console.log('local clear');
   
       let countryObject: { 
-        data: { [key: string]: CityFullData[] }; 
+        data: { [key: string]: CityData[] }; 
         keys: { value: string; label: string }[]; 
       } = {
         data: {},
@@ -44,7 +44,7 @@ const FileInput = () => {
     
       const countryNames = await loadCountriesNames();
   
-      const data: CityFullData[] | undefined = jsonData?.map(el => {
+      const data: CityData[] | undefined = jsonData?.map(el => {
         const values = el.value.split('\t');
         const [ 
           geoNameId, 
@@ -110,7 +110,7 @@ const FileInput = () => {
         }
       }
   
-      const sortedData: { [key: string]: CityFullData[] } = {};
+      const sortedData: { [key: string]: CityData[] } = {};
   
       for (const key in countryObject.data) {
         sortedData[key] = countryObject.data[key]

@@ -1,27 +1,6 @@
-// export interface CityType {
-//   name: string;
-//   countryName: string; 
-//   countryCode: string;
-//   geonameId: string;
-//   lat: string;
-//   lng: string;
-// }
+import { WeatherAverage } from "./Weather";
 
-// export interface CitiesXML {
-//   geonames: {
-//     geoname: { 
-//       countryName: {_text: string}; 
-//       countryCode: {_text: string};
-//       name: {_text: string};
-//       geonameId: {_text: string};
-//       lat: {_text: string};
-//       lng: {_text: string};
-//     }[];
-//   },
-//   totalResultsCount: {_text: string}; 
-// }
-
-export interface CityFullData {
+export interface CityData {
   geoNameId: string; 
   name: string; 
   asciiName: string;
@@ -41,4 +20,5 @@ export interface CityFullData {
   dem: string;
   timeZone: string;
   modificationDate: string;
+  weather?: WeatherAverage;
 }

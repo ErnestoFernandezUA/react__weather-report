@@ -1,8 +1,20 @@
 .City {
   width: 100%;
   cursor: pointer;
-
+  
   &--selected {
-    background-color: rgb(196, 196, 233);
+    background-color: rgb(185, 214, 231);
+  }
+
+  &--current {
+    background-color: rgb(15, 231, 44);
   }
 }
+
+// .Table .City--selected {
+//   display: none;
+// }
+
+// .Table--selected-cities .City--selected {
+//   display: table-row;
+// }
