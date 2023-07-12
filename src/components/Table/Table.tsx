@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import classNames from "classnames";
-
 import { CityData } from "../../types/City";
 import { City } from "../City";
 import { isExpired } from "../../utils/isExpired";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addCashItem, selectCash } from "../../store/features/cash/cashSlice";
-import { addSelected, checkCurrent, removeSelected, selectCountry, selectCurrent, selectOrder, selectSelected, selectSortBy, setCurrent } from "../../store/features/controls/controlsSlice";
+import { checkCurrent, selectCountry, selectOrder, selectSelected, selectSortBy} from "../../store/features/controls/controlsSlice";
 import { Sort } from "../../types/Sort";
 import { useWeatherLoader } from "./useWeatherLoader";
+import { HeadCell } from "../HeadCell";
 import './Table.scss';
 
 interface TableProps {
@@ -84,14 +84,15 @@ export const Table:React.FC<TableProps> = ({ className }) => {
     <table className={classNames("Table", className)}>
       <thead>
         <tr>
-          <th>City</th>
-          <th>Code</th>
-          <th>Population</th>
-          <th>Max Temp</th>
-          <th>Min Temp</th>
-          <th>Wind Direction</th>
+          <HeadCell type={Sort.byNames} />
+          <HeadCell title="Code" />
+          <HeadCell type={Sort.byPopulation} />
+          <HeadCell type={Sort.byMax} />
+          <HeadCell type={Sort.byMin} />
+          <HeadCell title="Wind Direction" />
         </tr>
       </thead>
+      
       <tbody>
         {displayed.map(city => <City key={city.geoNameId} city={city} />)}
       </tbody>
