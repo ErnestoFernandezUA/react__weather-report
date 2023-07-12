@@ -1,0 +1,1 @@
+export const TIME_TO_LIVE_DATA = 3; // hours

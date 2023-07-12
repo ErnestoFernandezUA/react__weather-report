@@ -4,17 +4,22 @@ import {
 } from '@reduxjs/toolkit';
 import { RootState } from '../..';
 import { CityData } from '../../../types/City';
+import { Sort } from '../../../types/Sort';
 
 export interface ControlState {
   country: CityData[],
   selected: CityData[],
   current: CityData | null,
+  sortBy: Sort;
+  order: boolean;
 }
 
 const initialState: ControlState = {
   country: [],
   selected: [],
   current: null,
+  sortBy: Sort.byPopulation,
+  order: true,
 };
 
 const controlSlice = createSlice({
@@ -29,6 +34,8 @@ const controlSlice = createSlice({
       } else {
         state.country = action.payload;
       }
+
+      // state.current = action.payload[0];
     },
     addSelected: (state: ControlState, action: PayloadAction<CityData>) => {
       state.country = state.country.filter(c => c.geoNameId !== action.payload.geoNameId);
@@ -38,33 +45,31 @@ const controlSlice = createSlice({
       state.selected = state.selected.filter(c => c.geoNameId !== action.payload.geoNameId);
       state.country = [ ...state.country, action.payload];
     },
-
-
-    // addSelected111: (state: ControlState, action: PayloadAction<CityData>) => {
-    //   state.selected.push(action.payload);
-    // },
-    // removeFromSelected111: (state: ControlState, action: PayloadAction<CityData>) => {
-    //   state.selected = state.selected.filter(c => c.geoNameId !== action.payload.geoNameId);
-    // },
-    // addToCountry: (state: ControlState, action: PayloadAction<CityData>) => {
-    //   state.country.push(action.payload);
-    // },
-    // removeFromCountry: (state: ControlState, action: PayloadAction<CityData>) => {
-    //   state.country = state.selected.filter(c => c.geoNameId !== action.payload.geoNameId);
-    // },
-    setCurrent: (state: ControlState, { payload }: PayloadAction<CityData | null>) => {
+    setCurrent: (state: ControlState, { payload }: PayloadAction<CityData>) => {
       // AP=1 & PREV=1 => AP===PREV ? set : null
       // AP=1 & PREV=0 => set
+      // move to check
       // AP=null & PREV=1 => isVisible? prev || c[0] || s[0] || null 
       // AP=null & PREV=null => c[0] || s[0] || null 
 
-      if (payload) {
-        state.current = state.current?.geoNameId !== payload.geoNameId ? payload : null;
-      }
+      state.current = state.current?.geoNameId !== payload.geoNameId ? payload : null;
+    },
+    checkCurrent: (state: ControlState) => {     
+      const isVisible = [...state.country, ...state.selected].find(c => c.geoNameId === state.current?.geoNameId) 
 
-      const isVisible = [...state.country, ...state.selected].find(c => c.geoNameId === payload?.geoNameId) 
+      // console.log(isVisible ? 'isVisible' : 'isInvisible');
 
       state.current = isVisible ? state.current : state.country[0] || state.selected[0] || null;
+    },
+    sort: (state: ControlState, action: PayloadAction<Sort>) => {
+      if (state.sortBy === action.payload) {
+        console.log('chan');
+
+        state.order = !state.order;
+      } else {
+        state.sortBy = action.payload;
+        state.order = true;
+      }
     },
     resetState: () => {
       return initialState;
@@ -82,9 +87,13 @@ export const {
   // addToCountry,
   // removeFromCountry,
   setCurrent,
+  checkCurrent,
+  sort,
   resetState,
 } = controlSlice.actions;
 
 export const selectCountry = (state: RootState) => state.control.country;
 export const selectSelected = (state: RootState) => state.control.selected;
 export const selectCurrent = (state: RootState) => state.control.current;
+export const selectSortBy = (state: RootState) => state.control.sortBy;
+export const selectOrder = (state: RootState) => state.control.order;

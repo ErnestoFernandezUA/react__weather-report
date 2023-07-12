@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { CityData } from "../../types/City";
 import axios from "axios";
 import * as convert from 'xml-js';
+
+import { CityData } from "../../types/City";
 import { CountriesXML } from "../../types/Country";
 
 const FILTER_BY_POPULATION = 100000;

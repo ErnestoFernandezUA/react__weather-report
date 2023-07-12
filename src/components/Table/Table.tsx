@@ -10,10 +10,10 @@ import { isExpired } from "../../utils/isExpired";
 import './Table.scss';
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addCashItem, selectCash } from "../../store/features/cash/cashSlice";
-import { selectCountry, selectSelected } from "../../store/features/controls/controlsSlice";
+import { checkCurrent, selectCountry, selectOrder, selectSelected, selectSortBy } from "../../store/features/controls/controlsSlice";
+import { Sort } from "../../types/Sort";
 
 interface TableProps {
-  // cities: CityData[];
   onClickSelectHandler: (e: React.MouseEvent<HTMLElement, MouseEvent>, city: CityData, isSelected: boolean) => void;
   selectedCities: CityData[];
   onClickCurrentHandler: (city: CityData) => void;
@@ -22,7 +22,6 @@ interface TableProps {
 }
 
 export const Table:React.FC<TableProps> = ({
-  // cities, 
   selectedCities, 
   onClickSelectHandler, 
   onClickCurrentHandler, 
@@ -35,17 +34,40 @@ export const Table:React.FC<TableProps> = ({
   const cash = useAppSelector(selectCash);
   const country = useAppSelector(selectCountry);
   const selected = useAppSelector(selectSelected);
+  const sortBy = useAppSelector(selectSortBy);
+  const order = useAppSelector(selectOrder);
 
+  const sortTable = () => {
+    const orderValue = order ? 1 : -1;
+    switch (true) {
+      case (sortBy === Sort.byNames):
+        setDisplayed([...displayed].sort((a, b) => orderValue * a.name.localeCompare(b.name)));
+        break;
+  
+      case (sortBy === Sort.byMax):
+        setDisplayed([...displayed].sort((a, b) => orderValue * (Number(a.weather?.dailyMax) - Number(b.weather?.dailyMax))));
+        break;
+  
+      case (sortBy === Sort.byMin):
+        setDisplayed([...displayed].sort((a, b) => orderValue * (Number(a.weather?.dailyMin) - Number(b.weather?.dailyMin))));
+        break;
+  
+      default:
+        setDisplayed([...displayed].sort((a, b) => orderValue * (Number(a.population) - Number(b.population))));
+    }
+  };
   
   useEffect(() => {
     const loadWeather = async (city: CityData) => {
       if (city.geoNameId in cash && !isExpired(cash[city.geoNameId].timerId)) {
-        // console.log(city.name, 'in cash!', isExpired(cash[city.geoNameId].timerId));
+        // console.log(city.name, 'in cash!', 'isExpired:', isExpired(cash[city.geoNameId].timerId));
         
         return cash[city.geoNameId].city;
       }
 
       try {
+        console.log( 'Loading data');
+
         const { data } = await axios.get<WeatherData>(`https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&hourly=winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`);
 
         const dailyMax = Math.max(...data.daily.temperature_2m_max);
@@ -60,9 +82,10 @@ export const Table:React.FC<TableProps> = ({
       }
     };
 
+    country.length && 
     Promise.allSettled([...country, ...selected].map(c => loadWeather(c)))
       .then(results => {
-        console.log(results);
+        // console.log(results);
 
         const updatedCities = results.map(result => {
           if (result.status === "fulfilled") {
@@ -78,10 +101,31 @@ export const Table:React.FC<TableProps> = ({
         setDisplayed(updatedCities);
       }
     );  
-  }, [cash, country, dispatch, selected])
+  }, [cash, country, dispatch])
 
+  useEffect(() => {
+    dispatch(checkCurrent());
+  }, [country])
+
+  useEffect(() => {
+    sortTable();
+  }, [sortBy, order])
+
+  useEffect(() => {
+  }, [displayed])
+  
   return (
     <table className={classNames("Table", className)}>
+      <thead>
+        <tr>
+          <th>City</th>
+          <th>Code</th>
+          <th>Population</th>
+          <th>Max Temp</th>
+          <th>Min Temp</th>
+          <th>Wind Direction</th>
+        </tr>
+      </thead>
       <tbody>
         {displayed.map((city) => (
           <City 
