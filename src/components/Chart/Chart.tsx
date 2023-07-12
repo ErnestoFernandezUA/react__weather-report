@@ -40,9 +40,9 @@ export const Chart: FC<ChartProps> = ({ className }) => {
       {current?.name}
       {average ? (
         <BarChart width={500} height={300} data={average}>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="5 5" />
           <XAxis dataKey="date" />
-          <YAxis domain={[0, maxYValue * 1.3]} />
+          <YAxis domain={[0, maxYValue * 1.4]} interval="preserveStart" />
           <Tooltip />
           <Bar dataKey="value" fill="#8884d8" />
         </BarChart>
