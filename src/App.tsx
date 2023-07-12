@@ -3,10 +3,10 @@ import { CityData } from './types/City';
 import { Table } from './components/Table/Table';
 import data from './data/data.json';
 import { Chart } from './components/Chart';
-import './App.scss';
 import { Sort } from './types/Sort';
 import { useAppDispatch, useAppSelector } from './store/hooks';
-import { addChosenCountry, addSelected, removeSelected, selectCountry, selectCurrent, selectSelected, setCurrent, sort } from './store/features/controls/controlsSlice';
+import { addChosenCountry, addSelected, removeSelected, selectCurrent, selectSelected, setCurrent, sort } from './store/features/controls/controlsSlice';
+import './App.scss';
 
 function App() {
   const [allData, setAllData] = useState<{ [key: string]: CityData[]} | null>(null);
@@ -33,7 +33,6 @@ function App() {
 
   const onClickSelectHandler = (e: React.MouseEvent<HTMLElement, MouseEvent>, city: CityData, isSelected: boolean) => {
     e.preventDefault();
-    console.log('onClickSelectHandler');
 
     if (isSelected) {
       dispatch(removeSelected(city));
@@ -52,7 +51,6 @@ function App() {
     <div className="App">
       <header>
         <h1>Weather report</h1>
-        {/* <h2>Selected cities: {selectedCities.length}</h2> */}
         <div className="App__controls">
           <button onClick={onClickPopulation}>byPopulation</button>
           <button onClick={onClickName}>byName</button>
@@ -84,8 +82,6 @@ function App() {
         </div>
 
         <div className="App__table">
-          
-
           <Table 
             onClickSelectHandler={onClickSelectHandler}
             onClickCurrentHandler={onClickCurrentHandler}

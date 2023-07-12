@@ -1,1 +1,1 @@
-export const TIME_TO_LIVE_DATA = 3; // hours
+export const TIME_TO_LIVE = 5 * 60 * 1000;

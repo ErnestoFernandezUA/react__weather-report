@@ -62,6 +62,8 @@ export const Table:React.FC<TableProps> = ({
       if (city.geoNameId in cash && !isExpired(cash[city.geoNameId].timerId)) {
         // console.log(city.name, 'in cash!', 'isExpired:', isExpired(cash[city.geoNameId].timerId));
         
+        console.log( 'using cash');
+        
         return cash[city.geoNameId].city;
       }
 

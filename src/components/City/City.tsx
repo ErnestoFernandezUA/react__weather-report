@@ -22,7 +22,6 @@ export const City:FC<CityProps> = ({
   const { name, population, weather, countryCode } = city;
 
   useEffect(() => {
-    // console.log('render', city, city.weather);
   }, [city, selectedCities])
 
   const isSelected: boolean = Boolean(selectedCities.find(c => c.geoNameId === city.geoNameId));

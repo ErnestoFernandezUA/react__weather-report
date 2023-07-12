@@ -22,8 +22,6 @@ const cashSlice = createSlice({
   initialState,
   reducers: {
     addCashItem: (state: CashState, action: PayloadAction<CityData>) => {
-      // console.log('addCashItem', action.payload.name);
-
       state.storage[action.payload.geoNameId] = {
         city: action.payload,
         timerId: Date.now().toString(),

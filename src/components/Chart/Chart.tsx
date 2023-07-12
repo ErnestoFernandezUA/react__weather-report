@@ -1,7 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { CityData } from "../../types/City";
 import axios from "axios";
-import classnames from 'classnames';
 import { WeatherData } from "../../types/Weather";
 
 import './Chart.scss';
@@ -17,8 +16,6 @@ export const Chart:FC<ChartProps> = ({ city }) => {
   useEffect(() => {
     const loadWeatherReport = async () => {
       try {
-        // console.log(city);
-
         const response = await axios.get<WeatherData>(`https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&hourly=winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`);
 
         setWeather(response.data);

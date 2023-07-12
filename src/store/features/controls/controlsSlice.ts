@@ -34,8 +34,6 @@ const controlSlice = createSlice({
       } else {
         state.country = action.payload;
       }
-
-      // state.current = action.payload[0];
     },
     addSelected: (state: ControlState, action: PayloadAction<CityData>) => {
       state.country = state.country.filter(c => c.geoNameId !== action.payload.geoNameId);
@@ -46,25 +44,15 @@ const controlSlice = createSlice({
       state.country = [ ...state.country, action.payload];
     },
     setCurrent: (state: ControlState, { payload }: PayloadAction<CityData>) => {
-      // AP=1 & PREV=1 => AP===PREV ? set : null
-      // AP=1 & PREV=0 => set
-      // move to check
-      // AP=null & PREV=1 => isVisible? prev || c[0] || s[0] || null 
-      // AP=null & PREV=null => c[0] || s[0] || null 
-
       state.current = state.current?.geoNameId !== payload.geoNameId ? payload : null;
     },
     checkCurrent: (state: ControlState) => {     
       const isVisible = [...state.country, ...state.selected].find(c => c.geoNameId === state.current?.geoNameId) 
 
-      // console.log(isVisible ? 'isVisible' : 'isInvisible');
-
       state.current = isVisible ? state.current : state.country[0] || state.selected[0] || null;
     },
     sort: (state: ControlState, action: PayloadAction<Sort>) => {
       if (state.sortBy === action.payload) {
-        console.log('chan');
-
         state.order = !state.order;
       } else {
         state.sortBy = action.payload;
@@ -82,10 +70,6 @@ export const {
   addChosenCountry,
   addSelected,
   removeSelected,
-  // addSelected111: addSelected111,
-  // removeFromSelected111: removeFromSelected111,
-  // addToCountry,
-  // removeFromCountry,
   setCurrent,
   checkCurrent,
   sort,

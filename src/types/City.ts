@@ -22,8 +22,3 @@ export interface CityData {
   modificationDate: string;
   weather?: WeatherAverage;
 }
-
-export interface CityStateData extends CityData {
-  isSelected: boolean;
-  isCurrent: boolean;
-}
