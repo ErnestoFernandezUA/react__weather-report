@@ -1,9 +1,9 @@
 import axios from "axios";
-import { CityData } from "../../types/City";
-import { WeatherData } from "../../types/Weather";
-import { isExpired } from "../../utils/isExpired";
-import { useAppSelector } from "../../store/hooks";
-import { selectCash } from "../../store/features/cash/cashSlice";
+import { CityData } from "../types/City";
+import { WeatherData } from "../types/Weather";
+import { isExpired } from "../utils/isExpired";
+import { useAppSelector } from "../store/hooks";
+import { selectCash } from "../store/features/cash/cashSlice";
 
 export const useWeatherLoader = () => {
   const cash = useAppSelector(selectCash);

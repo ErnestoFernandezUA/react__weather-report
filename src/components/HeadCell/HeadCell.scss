@@ -1,11 +1,22 @@
-.Table {
-  width: 100%;
-  margin-bottom: 100px;
-
-  &__controls {
-
+.HeadCell {
+  width: fit-content;
+  
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  &--active {
+    background-color: green;
   }
 
-  &__controls--active {
+  &--isClickable {
+    cursor: pointer;
+  }
+
+  &--isClickable:hover {
+    background-color: #948f8f;
   }
 }

@@ -3,6 +3,7 @@ import { IoArrowDownOutline, IoArrowUp } from "react-icons/io5";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectOrder, selectSortBy, sort } from "../../store/features/controls/controlsSlice";
 import { Sort } from "../../types/Sort";
+
 import './HeadCell.scss';
 
 const headerControls: {
@@ -37,13 +38,16 @@ export const HeadCell:React.FC<HeadCellProps> = ({
   return (
     <th 
       onClick={() => onClickSort(type)}
-      className={classNames('Table__controls',
-        {'Table__controls--active': isActive},
+      className={classNames('HeadCell',
+        {'HeadCell--isClickable': type},
+        {'HeadCell--active': isActive},
         className,
       )}
     >
-      {title ? title : type && headerControls[type].title}
-      {isActive && (direction ? <IoArrowDownOutline /> : <IoArrowUp />)}
+      <div className="HeadCell__content">
+        {title ? title : type && headerControls[type].title}
+        {isActive && (direction ? <IoArrowDownOutline /> : <IoArrowUp />)}
+      </div>
     </th>
   )
 };

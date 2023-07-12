@@ -8,19 +8,12 @@ function App() {
     <div className="App">
       <header>
         <h1>Weather report</h1>
-        <div className="App__controls">
-          <Controls />
-        </div>
       </header>
 
       <main>
-        <div className="App__chart">
-          <Chart />
-        </div>
-
-        <div className="App__table">
-          <Table />
-        </div>
+        <Controls className="App__controls"/>
+        <Chart className="App__chart"/>
+        <Table className="App__table" />
       </main>
     </div>
   );

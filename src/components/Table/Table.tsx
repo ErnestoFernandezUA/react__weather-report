@@ -7,9 +7,10 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addCashItem, selectCash } from "../../store/features/cash/cashSlice";
 import { checkCurrent, selectCountry, selectOrder, selectSelected, selectSortBy} from "../../store/features/controls/controlsSlice";
 import { Sort } from "../../types/Sort";
-import { useWeatherLoader } from "./useWeatherLoader";
+import { useWeatherLoader } from "../../hooks/useWeatherLoader";
 import { HeadCell } from "../HeadCell";
 import './Table.scss';
+import { useWidthContent } from "../../hooks/useWidthContent";
 
 interface TableProps {
   className?: string;
@@ -24,6 +25,7 @@ export const Table:React.FC<TableProps> = ({ className }) => {
   const order = useAppSelector(selectOrder);
   const cash = useAppSelector(selectCash);
   const loadWeather = useWeatherLoader();
+  const { widthTable } = useWidthContent();
 
   const sortTable = () => {
     const orderValue = order ? 1 : -1;
@@ -81,7 +83,10 @@ export const Table:React.FC<TableProps> = ({ className }) => {
   }, [sortBy, order]);
   
   return (
-    <table className={classNames("Table", className)}>
+    <table
+      className={classNames("Table", className)}
+      style={{ width: widthTable }}
+    >
       <thead>
         <tr>
           <HeadCell type={Sort.byNames} />
@@ -92,7 +97,7 @@ export const Table:React.FC<TableProps> = ({ className }) => {
           <HeadCell title="Wind Direction" />
         </tr>
       </thead>
-      
+
       <tbody>
         {displayed.map(city => <City key={city.geoNameId} city={city} />)}
       </tbody>

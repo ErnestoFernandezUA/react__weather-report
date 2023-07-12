@@ -4,6 +4,7 @@ import { CityData } from "../../types/City";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addSelected, removeSelected, selectCurrent, selectSelected, setCurrent } from "../../store/features/controls/controlsSlice";
 import './City.scss';
+import { useNumberFormat } from "../../hooks/useNumberFormat";
 
 interface CityProps {
   city: CityData;
@@ -20,6 +21,7 @@ export const City:FC<CityProps> = ({
   const maxT = weather ? weather?.dailyMax + ' ' +  weather?.daily_units?.temperature_2m_max : 'No data';
   const minT = weather ? weather?.dailyMin + ' ' +  weather?.daily_units?.temperature_2m_min : 'No data';
   const averageWind = weather ? weather?.averageWind : 'No data';
+  const formatNumber = useNumberFormat();
 
   useEffect(() => {
   }, [city, selected])
@@ -47,7 +49,7 @@ export const City:FC<CityProps> = ({
     >
       <td>{name}</td>
       <td>{countryCode}</td>
-      <td>{population}</td>
+      <td>{formatNumber(population)}</td>
       <td>{maxT} </td>
       <td>{minT}</td>
       <td>{averageWind}</td>
