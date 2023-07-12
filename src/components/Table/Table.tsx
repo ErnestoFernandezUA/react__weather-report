@@ -10,9 +10,10 @@ import { isExpired } from "../../utils/isExpired";
 import './Table.scss';
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { addCashItem, selectCash } from "../../store/features/cash/cashSlice";
+import { selectCountry, selectSelected } from "../../store/features/controls/controlsSlice";
 
 interface TableProps {
-  cities: CityData[];
+  // cities: CityData[];
   onClickSelectHandler: (e: React.MouseEvent<HTMLElement, MouseEvent>, city: CityData, isSelected: boolean) => void;
   selectedCities: CityData[];
   onClickCurrentHandler: (city: CityData) => void;
@@ -21,7 +22,7 @@ interface TableProps {
 }
 
 export const Table:React.FC<TableProps> = ({
-  cities, 
+  // cities, 
   selectedCities, 
   onClickSelectHandler, 
   onClickCurrentHandler, 
@@ -32,12 +33,14 @@ export const Table:React.FC<TableProps> = ({
   const [displayed, setDisplayed] = useState<CityData[]>([]);
   const dispatch = useAppDispatch();
   const cash = useAppSelector(selectCash);
+  const country = useAppSelector(selectCountry);
+  const selected = useAppSelector(selectSelected);
 
   
   useEffect(() => {
     const loadWeather = async (city: CityData) => {
       if (city.geoNameId in cash && !isExpired(cash[city.geoNameId].timerId)) {
-        console.log(city.name, 'in cash!', isExpired(cash[city.geoNameId].timerId));
+        // console.log(city.name, 'in cash!', isExpired(cash[city.geoNameId].timerId));
         
         return cash[city.geoNameId].city;
       }
@@ -57,8 +60,10 @@ export const Table:React.FC<TableProps> = ({
       }
     };
 
-    Promise.allSettled(cities.map(c => loadWeather(c)))
+    Promise.allSettled([...country, ...selected].map(c => loadWeather(c)))
       .then(results => {
+        console.log(results);
+
         const updatedCities = results.map(result => {
           if (result.status === "fulfilled") {
             if ((result.value.geoNameId in cash && isExpired(cash[result.value.geoNameId].timerId)) || !(result.value.geoNameId in cash)) {
@@ -69,11 +74,11 @@ export const Table:React.FC<TableProps> = ({
             return result.reason as CityData;
           }
         });
-      
+
         setDisplayed(updatedCities);
       }
     );  
-  }, [cash, cities, dispatch])
+  }, [cash, country, dispatch, selected])
 
   return (
     <table className={classNames("Table", className)}>

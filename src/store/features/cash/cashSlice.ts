@@ -13,8 +13,7 @@ export interface CashState {
 }
 
 const initialState: CashState = {
-  storage: {
-  },
+  storage: {},
   lastUpdateAt: '',
 };
 
@@ -43,4 +42,4 @@ export const {
 } = cashSlice.actions;
 
 export const selectCash = (state: RootState) => state.cash.storage;
-export const selectCashCity = (id: string) => (state: RootState) => state.cash.storage[id];
+

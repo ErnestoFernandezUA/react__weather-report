@@ -5,15 +5,18 @@ import data from './data/data.json';
 import { Chart } from './components/Chart';
 import './App.scss';
 import { Filter } from './types/Filter';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+import { addChosenCountry, addSelected, removeSelected, selectCountry, selectCurrent, selectSelected, setCurrent } from './store/features/controls/controlsSlice';
 
 function App() {
   const [allData, setAllData] = useState<{ [key: string]: CityData[]} | null>(null);
   const [keys, setKeys] = useState<{ value: string; label: string }[] | null>(null);
 
-// const { addCashCity, getCashCity, removeCashCity } = useCash();
-  const [country, setCountry] = useState<CityData[]>([]);
-  const [selected, setSelected] = useState <CityData[]>([]);
-  const [current, setCurrent] = useState <CityData | null>(null);
+  const dispatch = useAppDispatch();
+  const country = useAppSelector(selectCountry);
+  const selected = useAppSelector(selectSelected);
+  const current = useAppSelector(selectCurrent)
+  // const [current, setCurrent] = useState <CityData | null>(null);
 
   // const [filterSelected, setFilterSelected] = useState<Filter>(Filter.byPopulation);
 
@@ -23,38 +26,15 @@ function App() {
   }, [])
 
   useEffect(() => {   
-    if (country.find(c => c.geoNameId === current?.geoNameId) || selected.find(c => c.geoNameId === current?.geoNameId )) {
-      setCurrent(country[0] || selected[0]);
-    }
+    // if (country.find(c => c.geoNameId === current?.geoNameId) || selected.find(c => c.geoNameId === current?.geoNameId )) {
+    //   setCurrent(country[0] || selected[0]);
+    // }
+    dispatch(setCurrent(current));
   }, [country])
 
-  const addCityToCountry = (city: CityData) => {
-    setCountry([ ...country, city ]);
-  };
-
-  const removeCityFromCountry = (city: CityData) => {
-    setCountry(country.filter(c => c.geoNameId !== city.geoNameId));
-  };
-
-  const addCityToSelected = (city: CityData) => {
-    setSelected(selected => [ ...selected, city ]);
-  };
-
-  const removeCityFromSelected = (city: CityData) => {
-    setSelected(selected => selected.filter(c => c.geoNameId !== city.geoNameId));
-  };
-
   const onChangeCountryHandler = (e: React.FormEvent<HTMLSelectElement>) => {
-    console.log('onChangeCountryHandler');
-
     if (allData && e.currentTarget.value in allData) {
-      if (selected.length) {
-        const selectedCitiesGeoNameId = selected.map(c => c.geoNameId);
-
-        setCountry(allData[e.currentTarget.value].filter(c => !selectedCitiesGeoNameId.includes(c.geoNameId)));
-      } else {
-        setCountry(allData[e.currentTarget.value]);
-      }
+      dispatch(addChosenCountry(allData[e.currentTarget.value]));
     }
   };
 
@@ -63,16 +43,14 @@ function App() {
     console.log('onClickSelectHandler');
 
     if (isSelected) {
-      removeCityFromSelected(city);
-      addCityToCountry(city);
+      dispatch(addSelected(city));
     } else {
-      removeCityFromCountry(city);
-      addCityToSelected(city);
+      dispatch(removeSelected(city));
     }
   };
 
   const onClickCurrentHandler = (city: CityData) => {
-    setCurrent(current => current?.geoNameId !== city.geoNameId ? city : null);
+    dispatch(setCurrent(city));
   };
 
   // const filter = () => {
@@ -123,7 +101,7 @@ function App() {
           </label>
 
           <Table 
-            cities={[ ...country, ...selected ]} 
+            // cities={[ ...country, ...selected ]} 
             onClickSelectHandler={onClickSelectHandler}
             onClickCurrentHandler={onClickCurrentHandler}
             selectedCities={selected}

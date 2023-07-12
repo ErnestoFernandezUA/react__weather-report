@@ -5,7 +5,7 @@ export const isExpired = (timer?: string) => {
     return true;
   }
 
-  console.log((Date.now() - Number(timer)) / 1000, Date.now() - Number(timer) > TIME_TO_LIVE );
+  // console.log((Date.now() - Number(timer)) / 1000, Date.now() - Number(timer) > TIME_TO_LIVE );
 
   return Date.now() - Number(timer) > TIME_TO_LIVE
 };
