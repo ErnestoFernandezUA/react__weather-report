@@ -1,5 +1,8 @@
 .HeadCell {
   width: fit-content;
+  background-color: #020202;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
   
   &__content {
     display: flex;
@@ -9,7 +12,7 @@
   }
   
   &--active {
-    background-color: green;
+    background-color: #f00000;
   }
 
   &--isClickable {
@@ -17,6 +20,8 @@
   }
 
   &--isClickable:hover {
-    background-color: #948f8f;
+    opacity: 0.8;
   }
+
+
 }

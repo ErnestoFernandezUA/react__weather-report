@@ -35,43 +35,48 @@ const { widthChart } = useWidthContent();
       .catch(error => console.error(`Error during loading loadWeatherReport ${current.name}`, error));
   }, [current])
 
-  const maxYValue = average ? Math.max(...average.map(a => a.value)) : 0;
+  const maxYValue = average ? Math.ceil(Math.max(...average.map(a => a.value))) : 0;
 
-  console.log('widthChart', widthChart);
+  console.log('widthChart', widthChart, maxYValue);
 
   return (
     <div className={className}>
-      {current?.name}
+      {current ? <h2>{current?.name}</h2> : null}
       {average ? (
         <div className="Chart">
           <BarChart
-            width={widthChart} 
+            width={widthChart - 40} 
             height={widthChart * 0.6} 
             data={average}
-            margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
+            margin={{ top: 10, right: 0, bottom: 0 }}
           >
-            <CartesianGrid strokeDasharray="5 5" />
+            <CartesianGrid 
+              strokeDasharray="2 2"
+            />
             <XAxis 
               dataKey="date"  
               stroke="#8884d8"
-              tick={{ fontSize: 14, fill: '#666' }} 
-              // tickLine={{ stroke: '#888', strokeWidth: 1 }} 
-              // axisLine={{ stroke: '#888', strokeWidth: 1 }} 
+              tick={{ fontSize: 10, fill: '#666' }} 
               padding={{ left: 10, right: 10 }}
+              tickLine={{ stroke: '#8884d8' }}
+              axisLine={{ stroke: '#8884d8' }}
             />
-            <YAxis 
+            <YAxis
               domain={[0, maxYValue * 1.3]} 
-              tick={{ fontSize: 14, fill: '#666' }} 
-              // tickLine={{ stroke: '#888', strokeWidth: 1 }} 
-              // axisLine={{ stroke: '#888', strokeWidth: 1 }}
-              padding={{ top: 50, bottom: 0 }}
+              tick={{ fontSize: 10, fill: '#666' }} 
+              // padding={{ top: 20, bottom: 0 }}
               tickMargin={4}
               ticks={[10,20, 30, 40]}
+              tickLine={{ stroke: '#8884d8' }}
+              axisLine={{ stroke: '#8884d8' }}
             />
             <Tooltip
               // wrapperStyle={{ backgroundColor: '#f0f0f0', border: '1px solid #ddd' }}
               // labelStyle={{ fontSize: 14, color: '#c41919' }} 
               // itemStyle={{ fontSize: 14, color: '#e01313' }}
+              wrapperStyle={{ backgroundColor: '#f0f0f0', border: '1px solid #ddd' }}
+              labelStyle={{ fontSize: 14, color: '#c41919' }} 
+              itemStyle={{ fontSize: 14, color: '#e01313' }}
             />
             <Bar dataKey="value" fill="#8884d8" />
           </BarChart>

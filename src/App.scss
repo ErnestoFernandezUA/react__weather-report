@@ -2,6 +2,8 @@
   text-align: center;
   min-height: 100vh;
   font-size: 12px;
+
+  background-color: #434343;
 }
 
 .App header {
@@ -9,7 +11,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  color: #191919;
 }
 
 .App main {
@@ -30,10 +32,17 @@
 
 .App__chart {
   order: -1;
+  box-sizing: border-box;
+  background: #191919;
+  border-radius: 12px;
+  color: #fff;
 }
 
 .App__table {
   flex: 1;
+  background: #191919;
+  border-radius: 12px;
+  color: #fff;
 }
 
 @media (min-width: 900px) {

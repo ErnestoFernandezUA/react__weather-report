@@ -55,7 +55,10 @@ export const Table:React.FC<TableProps> = ({ className }) => {
     if (!country.length) return;
 
     const results = await Promise.allSettled([...country, ...selected].map(c => loadWeather(c)));
+
     const updatedCities = results.map(result => {
+      console.log('result', result);
+
       if (result.status === "fulfilled") {
         if ((result.value.geoNameId in cash && isExpired(cash[result.value.geoNameId].timerId)) || !(result.value.geoNameId in cash)) {
           dispatch(addCashItem(result.value));

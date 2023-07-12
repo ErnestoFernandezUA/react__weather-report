@@ -2,14 +2,17 @@
   width: 100%;
   cursor: pointer;
   
-  &--selected {
-    background-color: rgb(185, 214, 231);
+  
+  &:nth-child(2n + 1) {
+    background-color: #313131;
+  }
+  
+  &:nth-child(2n) {
+    background-color: #191919;
   }
 
-  &--current {
-    background-color: rgb(15, 231, 44);
-  }
 
+  
   & td:nth-child(1) {
     text-align: left;
   }
@@ -33,4 +36,14 @@
   & td:nth-child(6) {
     text-align: right;
   }
+}
+
+.City.City--selected {
+    background-color: rgb(185, 214, 231);
+    color: #191919;
+  }
+
+.City.City--current {
+  color: #e2e2e2;
+  background-color: rgb(8, 114, 23);
 }

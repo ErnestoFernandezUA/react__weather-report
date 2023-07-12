@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import Select, { ControlProps, OptionProps, StylesConfig, CSSObjectWithLabel } from 'react-select';
+import Select, { ControlProps, OptionProps, StylesConfig, CSSObjectWithLabel, ContainerProps, GroupBase, MenuListProps } from 'react-select';
+import classNames from "classnames";
 import { CityData } from "../../types/City";
 import data from '../../data/data.json';
 import { useAppDispatch } from "../../store/hooks";
 import { addChosenCountry } from "../../store/features/controls/controlsSlice";
-
-import './Controls.scss';
 import { useWidthContent } from "../../hooks/useWidthContent";
-import classNames from "classnames";
+import './Controls.scss';
 
 type OptionType = { value: string; label: string };
 
@@ -22,7 +21,7 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
   const { widthSelect } = useWidthContent(); 
 
   useEffect(() => {
-    console.log('setdata');   
+    console.log('setData');   
     setAllData(data.data);
     setKeys(data.keys);
   }, [])
@@ -51,13 +50,14 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
   const customStyles: StylesConfig<OptionType, true> = {
     control: (base: CSSObjectWithLabel, state: ControlProps<OptionType, true>) => ({
       ...base,
-      width: widthSelect,
+      // width: widthSelect,
       background: '#f3f3f3',
-      borderRadius: state.isFocused ? '3px 3px 0 0' : 3,
+      borderRadius: state.isFocused ? '12px 12px 12px 12px' : 12,
       borderColor: state.isFocused ? '#673ab7' : '#e2e2e2',
       boxShadow: state.isFocused ? '0 0 0 1px #673ab7' : undefined,
       '&:hover': {
         borderColor: state.isFocused ? '#673ab7' : '#e2e2e2',
+        borderRadius: state.isFocused ? '12px 12px 12px 12px' : 12,
       }
     }),
     option: (styles: CSSObjectWithLabel, { isDisabled, isFocused, isSelected }: OptionProps<OptionType, true>) => {
@@ -66,6 +66,15 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
         backgroundColor: isDisabled ? undefined : (isSelected ? '#673ab7' : (isFocused ? '#e2e2e2' : undefined)),
         color: isDisabled ? '#ccc' : (isSelected ? 'white' : 'black'),
         cursor: isDisabled ? 'not-allowed' : 'default',
+        borderRadius: '12px',
+      };
+    },
+    menuList: (base: CSSObjectWithLabel, props: MenuListProps<OptionType, true, GroupBase<OptionType>>) => {
+      return {
+        ...base,
+        backgroundColor: '#191919',
+        overflow: 'hidden',
+        borderRadius: '12px',
       };
     },
   }

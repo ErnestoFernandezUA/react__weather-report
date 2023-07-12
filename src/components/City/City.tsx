@@ -18,8 +18,8 @@ export const City:FC<CityProps> = ({
   const selected = useAppSelector(selectSelected);
   const isSelected: boolean = Boolean(selected.find(c => c.geoNameId === city.geoNameId));
   const isCurrent = useAppSelector(selectCurrent)?.geoNameId === city.geoNameId;
-  const maxT = weather ? weather?.dailyMax + ' ' +  weather?.daily_units?.temperature_2m_max : 'No data';
-  const minT = weather ? weather?.dailyMin + ' ' +  weather?.daily_units?.temperature_2m_min : 'No data';
+  const maxT = weather ? Math.round(+weather?.dailyMax) + ' ' +  weather?.daily_units?.temperature_2m_max : 'No data';
+  const minT = weather ? Math.round(+weather?.dailyMin) + ' ' +  weather?.daily_units?.temperature_2m_min : 'No data';
   const averageWind = weather ? weather?.averageWind : 'No data';
   const formatNumber = useNumberFormat();
 
