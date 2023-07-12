@@ -72,8 +72,6 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
     menuList: (base: CSSObjectWithLabel, props: MenuListProps<OptionType, true, GroupBase<OptionType>>) => {
       return {
         ...base,
-        backgroundColor: '#191919',
-        overflow: 'hidden',
         borderRadius: '12px',
       };
     },
