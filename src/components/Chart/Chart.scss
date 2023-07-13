@@ -16,5 +16,8 @@
 
   &__content {
     // border: 1px solid #f00000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
