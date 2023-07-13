@@ -38,26 +38,28 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
         }
       }
      
+      console.log('dispatch(addChosenCountry(allCountries));')
       dispatch(addChosenCountry(allCountries));
     }
   };
 
   const customStyles: StylesConfig<OptionType, true> = {
-    control: (base: CSSObjectWithLabel, state: ControlProps<OptionType, true>) => ({
-      ...base,
-      background: '#f3f3f3',
-      borderRadius: state.isFocused ? '12px 12px 12px 12px' : 12,
-      borderColor: state.isFocused ? '#673ab7' : '#e2e2e2',
-      boxShadow: state.isFocused ? '0 0 0 1px #673ab7' : undefined,
-      '&:hover': {
-        borderColor: state.isFocused ? '#673ab7' : '#e2e2e2',
+    control: (base: CSSObjectWithLabel, state: ControlProps<OptionType, true>) => {
+      return {
+        ...base,
+        background: '#313131',
         borderRadius: state.isFocused ? '12px 12px 12px 12px' : 12,
-      }
-    }),
+        borderColor: state.isFocused ? '#191919' : '#e2e2e2',
+        boxShadow: state.isFocused ? '0 0 0 1px #191919' : undefined,
+        '&:hover': {
+          borderColor: state.isFocused ? '#191919' : '#e2e2e2',
+          borderRadius: state.isFocused ? '12px 12px 12px 12px' : 12,
+        }
+      }},
     option: (styles: CSSObjectWithLabel, { isDisabled, isFocused, isSelected }: OptionProps<OptionType, true>) => {
       return {
         ...styles,
-        backgroundColor: isDisabled ? undefined : (isSelected ? '#673ab7' : (isFocused ? '#e2e2e2' : undefined)),
+        backgroundColor: isDisabled ? undefined : (isSelected ? '#087217' : (isFocused ? '#e2e2e2' : undefined)),
         color: isDisabled ? '#ccc' : (isSelected ? 'white' : 'black'),
         cursor: isDisabled ? 'not-allowed' : 'default',
         borderRadius: '12px',
@@ -76,14 +78,16 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
   return (
     <div className={classNames("Controls", className)}>
       <label htmlFor="countries">
-        <Select 
-           id="countries"
-           onChange={onChangeCountryHandler}
-           options={keys || []} 
-           defaultValue={defaultValue}
-           isMulti={true}
-           styles={customStyles}
-        />
+        {defaultValue && keys?.length && (
+          <Select 
+             id="countries"
+             onChange={onChangeCountryHandler}
+             options={keys || []} 
+             defaultValue={defaultValue}
+             isMulti={true}
+             styles={customStyles}
+          />
+        )}
       </label>
     </div>
   )

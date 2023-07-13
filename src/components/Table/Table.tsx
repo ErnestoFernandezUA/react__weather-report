@@ -50,7 +50,9 @@ export const Table:React.FC<TableProps> = ({ className }) => {
   };
     
   const updateCities = async () => {
-    if (!country.length) return;
+    if (!country.length) {
+      setDisplayed([]);
+    };
    
     const results = await Promise.allSettled([...country, ...selected].map(c => loadWeather(c)));
 

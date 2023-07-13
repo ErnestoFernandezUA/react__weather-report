@@ -62,7 +62,7 @@ export const Chart: FC<ChartProps> = ({ className }) => {
   }, []);
 
   const maxYValue = average ? Math.ceil(Math.max(...average.map(a => a.value))) : 0;
-  const widthBarChart = windowWidth > 1024 ? width * 0.8 : width;
+  const widthBarChart = windowWidth > 1024 ? width * 0.8 - 30 : width - 30;
 
   return (
     <WrapperContent className={"Chart"}>
