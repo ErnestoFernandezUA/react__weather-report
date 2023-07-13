@@ -1,17 +1,24 @@
 .City {
   width: 100%;
   cursor: pointer;
+
+  &--selected {
+    background-color: rgb(185, 214, 231);
+    color: #191919;
+  }
+
+  &--current {
+    color: #e2e2e2;
+    background-color: rgb(8, 114, 23);
+  }
   
-  
-  &:nth-child(2n + 1) {
+  &:not(.City--current, .City--selected):nth-child(2n + 1) {
     background-color: #313131;
   }
   
-  &:nth-child(2n) {
+  &:not(.City--current, .City--selected):nth-child(2n) {
     background-color: #191919;
   }
-
-
   
   & td:nth-child(1) {
     text-align: left;
@@ -38,12 +45,4 @@
   }
 }
 
-.City.City--selected {
-    background-color: rgb(185, 214, 231);
-    color: #191919;
-  }
 
-.City.City--current {
-  color: #e2e2e2;
-  background-color: rgb(8, 114, 23);
-}
