@@ -2,7 +2,7 @@
   text-align: center;
   min-height: 100vh;
   font-size: 12px;
-
+  color: #e2e2e2;
   background-color: #434343;
 }
 
@@ -16,47 +16,36 @@
 
 .App main {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
-  align-items: start;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 20px;
+  margin: 0 16px;
 }
 
-.App__controls {
-  margin-bottom: 20px;
-  margin: 0 0 0 auto;
-  flex-basis: 100%;
+.App main > * {
 }
 
-.App__chart {
-  order: -1;
-  box-sizing: border-box;
-  background: #191919;
-  border-radius: 12px;
-  color: #fff;
-}
-
-.App__table {
-  flex: 1;
-  background: #191919;
-  border-radius: 12px;
-  color: #fff;
-}
-
-@media (min-width: 900px) {
+@media (min-width: 600px) {
   .App main {
     margin: 0 50px;
   }
+}
 
-  .App__chart {
-    order: 0;
+@media (min-width: 1000px) {
+  .App main {
+    margin: 0 50px;
+    align-items: start;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .App main section {
+    flex: 1;
   }
 }
 
 @media (min-width: 1200px) {
   .App main {
+    max-width: 1200px;
     margin: 0 auto;
   }
 }

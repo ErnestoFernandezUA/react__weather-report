@@ -2,9 +2,11 @@ import { FC, useEffect } from "react";
 import classnames from 'classnames';
 import { CityData } from "../../types/City";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { addSelected, removeSelected, selectCurrent, selectSelected, setCurrent } from "../../store/features/controls/controlsSlice";
+import { addSelected, removeSelected, selectCurrent, selectSelected, setCurrent} from "../../store/features/controls/controlsSlice";
 import './City.scss';
 import { useNumberFormat } from "../../hooks/useNumberFormat";
+import { Sort } from "../../types/Sort";
+import { Td } from "../Td";
 
 interface CityProps {
   city: CityData;
@@ -22,7 +24,7 @@ export const City:FC<CityProps> = ({
   const minT = weather ? Math.round(+weather?.dailyMin) + ' ' +  weather?.daily_units?.temperature_2m_min : 'No data';
   const averageWind = weather ? weather?.averageWind : 'No data';
   const formatNumber = useNumberFormat();
-
+  
   useEffect(() => {
   }, [city, selected])
 
@@ -47,12 +49,12 @@ export const City:FC<CityProps> = ({
       onClick={() => handleSetCurrentCity(city)}
       onContextMenu={(e) => handleSelectCity(e, city, isSelected)}
     >
-      <td>{name}</td>
-      <td>{countryCode}</td>
-      <td>{formatNumber(population)}</td>
-      <td>{maxT} </td>
-      <td>{minT}</td>
-      <td>{averageWind}</td>
+      <Td type={Sort.byNames}>{name}</Td>
+      <Td>{countryCode}</Td>
+      <Td type={Sort.byPopulation}>{formatNumber(population)}</Td>
+      <Td type={Sort.byMax}>{maxT} </Td>
+      <Td type={Sort.byMin}>{minT}</Td>
+      <Td>{averageWind}</Td>
     </tr>
   )
 };

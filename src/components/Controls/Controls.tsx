@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import Select, { ControlProps, OptionProps, StylesConfig, CSSObjectWithLabel, ContainerProps, GroupBase, MenuListProps } from 'react-select';
+import Select, { ControlProps, OptionProps, StylesConfig, CSSObjectWithLabel, GroupBase, MenuListProps } from 'react-select';
 import classNames from "classnames";
 import { CityData } from "../../types/City";
 import data from '../../data/data.json';
 import { useAppDispatch } from "../../store/hooks";
 import { addChosenCountry } from "../../store/features/controls/controlsSlice";
-import { useWidthContent } from "../../hooks/useWidthContent";
 import './Controls.scss';
 
 type OptionType = { value: string; label: string };
@@ -18,10 +17,8 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
   const [allData, setAllData] = useState<{ [key: string]: CityData[] } | null>(null);
   const [keys, setKeys] = useState<{ value: string; label: string }[] | null>(null);
   const dispatch = useAppDispatch();
-  const { widthSelect } = useWidthContent(); 
 
   useEffect(() => {
-    console.log('setData');   
     setAllData(data.data);
     setKeys(data.keys);
   }, [])
@@ -45,12 +42,9 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
     }
   };
 
-  console.log('widthSelect', widthSelect);
-
   const customStyles: StylesConfig<OptionType, true> = {
     control: (base: CSSObjectWithLabel, state: ControlProps<OptionType, true>) => ({
       ...base,
-      // width: widthSelect,
       background: '#f3f3f3',
       borderRadius: state.isFocused ? '12px 12px 12px 12px' : 12,
       borderColor: state.isFocused ? '#673ab7' : '#e2e2e2',
@@ -77,6 +71,8 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
     },
   }
 
+  const defaultValue = keys && keys.length > 0 ? keys[0] : undefined;
+
   return (
     <div className={classNames("Controls", className)}>
       <label htmlFor="countries">
@@ -84,7 +80,7 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
            id="countries"
            onChange={onChangeCountryHandler}
            options={keys || []} 
-           defaultValue={keys && keys.length > 0 ? keys[0] : undefined}
+           defaultValue={defaultValue}
            isMulti={true}
            styles={customStyles}
         />

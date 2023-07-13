@@ -17,8 +17,6 @@ const FileInput = () => {
   const [result, setResult] = useState<any>();
   useEffect(() => {
     const prepareData = async () => {
-      console.log('local clear');
-  
       let countryObject: { 
         data: { [key: string]: CityData[] }; 
         keys: { value: string; label: string }[]; 

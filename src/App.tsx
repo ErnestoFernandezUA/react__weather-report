@@ -1,6 +1,5 @@
-import { Table } from './components/Table/Table';
 import { Chart } from './components/Chart';
-import { Controls } from './components/Controls';
+import { DataViewer } from './components/DataViewer';
 import './App.scss';
 
 function App() {
@@ -11,9 +10,8 @@ function App() {
       </header>
 
       <main>
-        <Controls className="App__controls"/>
-        <Chart className="App__chart"/>
-        <Table className="App__table" />
+        <Chart />
+        <DataViewer />
       </main>
     </div>
   );

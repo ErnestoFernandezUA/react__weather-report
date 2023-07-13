@@ -10,7 +10,6 @@ import { Sort } from "../../types/Sort";
 import { useWeatherLoader } from "../../hooks/useWeatherLoader";
 import { HeadCell } from "../HeadCell";
 import './Table.scss';
-import { useWidthContent } from "../../hooks/useWidthContent";
 
 interface TableProps {
   className?: string;
@@ -25,7 +24,6 @@ export const Table:React.FC<TableProps> = ({ className }) => {
   const order = useAppSelector(selectOrder);
   const cash = useAppSelector(selectCash);
   const loadWeather = useWeatherLoader();
-  const { widthTable } = useWidthContent();
 
   const sortTable = () => {
     const orderValue = order ? 1 : -1;
@@ -50,15 +48,13 @@ export const Table:React.FC<TableProps> = ({ className }) => {
     
     setDisplayed(sortedArray);
   };
-  
+    
   const updateCities = async () => {
     if (!country.length) return;
-
+   
     const results = await Promise.allSettled([...country, ...selected].map(c => loadWeather(c)));
 
     const updatedCities = results.map(result => {
-      console.log('result', result);
-
       if (result.status === "fulfilled") {
         if ((result.value.geoNameId in cash && isExpired(cash[result.value.geoNameId].timerId)) || !(result.value.geoNameId in cash)) {
           dispatch(addCashItem(result.value));
@@ -88,7 +84,6 @@ export const Table:React.FC<TableProps> = ({ className }) => {
   return (
     <table
       className={classNames("Table", className)}
-      style={{ width: widthTable }}
     >
       <thead>
         <tr>

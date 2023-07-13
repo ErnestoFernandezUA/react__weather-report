@@ -1,21 +1,29 @@
-import { FC, useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "axios";
 import { WeatherData } from "../../types/Weather";
 import { useAppSelector } from "../../store/hooks";
 import { selectCurrent } from "../../store/features/controls/controlsSlice";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { WrapperContent } from "../WrapperContent";
 
 import './Chart.scss';
-import { useWidthContent } from "../../hooks/useWidthContent";
 
+interface Average {
+  day: number,
+  value: number,
+  month: number,
+  year: number,
+}
 interface ChartProps {
   className?: string;
 }
 
 export const Chart: FC<ChartProps> = ({ className }) => {
   const current = useAppSelector(selectCurrent);
-  const [average, setAverage] = useState<{ date: number; value: number }[] | null>(null);
-const { widthChart } = useWidthContent(); 
+  const [average, setAverage] = useState<Average[] | null>(null);
+  const chartContentRef = useRef<HTMLDivElement | null>(null);
+  const [width, setWidth] = useState<number>(0);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     if (!current) return;
@@ -25,9 +33,11 @@ const { widthChart } = useWidthContent();
         const average = response.data.daily.time.map((dateString, index) => {
           const date = new Date(dateString);
           const dayOfMonth = date.getDate();
+          const month = date.getMonth();
+          const year = date.getFullYear();
           const value = Math.ceil((response.data.daily.temperature_2m_max[index] + response.data.daily.temperature_2m_min[index]) / 2 * 10) / 10;
 
-          return { date: dayOfMonth, value };
+          return { day: dayOfMonth, value, month, year };
         });
 
         setAverage(average);
@@ -35,18 +45,34 @@ const { widthChart } = useWidthContent();
       .catch(error => console.error(`Error during loading loadWeatherReport ${current.name}`, error));
   }, [current])
 
-  const maxYValue = average ? Math.ceil(Math.max(...average.map(a => a.value))) : 0;
+  useEffect(() => {
+    if(chartContentRef.current) {
+      setWidth(chartContentRef.current.clientWidth);
+    }
+  }, [average, windowWidth]);
 
-  console.log('widthChart', widthChart, maxYValue);
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxYValue = average ? Math.ceil(Math.max(...average.map(a => a.value))) : 0;
+  const widthBarChart = windowWidth > 1024 ? width * 0.8 : width;
 
   return (
-    <div className={className}>
-      {current ? <h2>{current?.name}</h2> : null}
+    <WrapperContent className={"Chart"}>
+      <h2 className="Chart__title">{current ? current?.name : 'chose city...'}</h2>
+
       {average ? (
-        <div className="Chart">
+        <div className="Chart__content" ref={chartContentRef}>
           <BarChart
-            width={widthChart - 40} 
-            height={widthChart * 0.6} 
+            width={widthBarChart} 
+            height={widthBarChart * 0.6} 
             data={average}
             margin={{ top: 10, right: 0, bottom: 0 }}
           >
@@ -54,7 +80,7 @@ const { widthChart } = useWidthContent();
               strokeDasharray="2 2"
             />
             <XAxis 
-              dataKey="date"  
+              dataKey="day"  
               stroke="#8884d8"
               tick={{ fontSize: 10, fill: '#666' }} 
               padding={{ left: 10, right: 10 }}
@@ -82,6 +108,6 @@ const { widthChart } = useWidthContent();
           </BarChart>
         </div>
       ) : null}
-    </div>
+    </WrapperContent>
   )
 };

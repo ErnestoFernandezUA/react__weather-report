@@ -1,15 +1,15 @@
 .City {
   width: 100%;
   cursor: pointer;
-
+  
   &--selected {
     background-color: rgb(185, 214, 231);
     color: #191919;
   }
 
   &--current {
-    color: #e2e2e2;
     background-color: rgb(8, 114, 23);
+    color: #fff;
   }
   
   &:not(.City--current, .City--selected):nth-child(2n + 1) {
@@ -19,6 +19,8 @@
   &:not(.City--current, .City--selected):nth-child(2n) {
     background-color: #191919;
   }
+
+
   
   & td:nth-child(1) {
     text-align: left;
