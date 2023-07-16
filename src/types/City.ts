@@ -22,8 +22,4 @@ export interface CityData {
   modificationDate: string;
   
   weather?: WeatherAverage | null;
-  // controls?: {
-  //   isLoading?: boolean;
-  //   error?: string | null;
-  // }   
 }

@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { WrapperContent } from "../WrapperContent";
 
 import './Chart.scss';
+import { getWeekWR } from "../../api/weather";
 
 interface Average {
   day: number,
@@ -28,14 +29,14 @@ export const Chart: FC<ChartProps> = ({ className }) => {
   useEffect(() => {
     if (!current) return;
 
-    axios.get<WeatherData>(`https://api.open-meteo.com/v1/forecast?latitude=${current.latitude}&longitude=${current.longitude}&hourly=winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`)
-      .then(response => {
-        const average = response.data.daily.time.map((dateString, index) => {
+    getWeekWR(current)
+      .then(res => {
+        const average = res.daily.time.map((dateString, index) => {
           const date = new Date(dateString);
           const dayOfMonth = date.getDate();
           const month = date.getMonth();
           const year = date.getFullYear();
-          const value = Math.ceil((response.data.daily.temperature_2m_max[index] + response.data.daily.temperature_2m_min[index]) / 2 * 10) / 10;
+          const value = Math.ceil((res.daily.temperature_2m_max[index] + res.daily.temperature_2m_min[index]) / 2 * 10) / 10;
 
           return { day: dayOfMonth, value, month, year };
         });

@@ -3,12 +3,12 @@ import {
   createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { RootState } from '../..';
 import { CityData } from '../../../types/City';
 import { Sort } from '../../../types/Sort';
-import { WeatherAverage, WeatherData } from '../../../types/Weather';
+import { WeatherAverage } from '../../../types/Weather';
 import { addCashItem } from '../cash/cashSlice';
+import { getTomorrowWR } from '../../../api/weather';
 
 interface OptionType { value: string; label: string; }
 
@@ -46,22 +46,21 @@ export const getWeatherAsync  = createAsyncThunk(
   async (
     city: CityData, 
     { dispatch, rejectWithValue }) => {
-
       try {
-      const { data } = await axios.get<WeatherData>(`https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&hourly=winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`);
+        const res = await getTomorrowWR(city);
 
-      const dailyMax = Math.max(...data.daily.temperature_2m_max);
-      const dailyMin = Math.min(...data.daily.temperature_2m_min);
-      const averageWind = Math.ceil(data.hourly.winddirection_10m.reduce((acc, el) => acc + el) / data.hourly.winddirection_10m.length);
-      const daily_units = data.daily_units;
+        const dailyMax = Math.max(...res.daily.temperature_2m_max);
+        const dailyMin = Math.min(...res.daily.temperature_2m_min);
+        const averageWind = Math.ceil(res.hourly.winddirection_10m.reduce((acc, el) => acc + el) / res.hourly.winddirection_10m.length);
+        const daily_units = res.daily_units;
 
-      dispatch(addCashItem( { ...city, weather: { dailyMax, dailyMin, averageWind, daily_units } }));
+        dispatch(addCashItem( { ...city, weather: { dailyMax, dailyMin, averageWind, daily_units } }));
 
-      return { dailyMax, dailyMin, averageWind, daily_units } as WeatherAverage;
-    } catch (error) {
-      console.error(`Error during loading loadWeather ${city.name}`, error);
-      return rejectWithValue(`Error during loading loadWeather ${city.name} - ${error}` as string);
-    }
+        return { dailyMax, dailyMin, averageWind, daily_units } as WeatherAverage;
+      } catch (error) {
+        console.error(`Error during loading loadWeather ${city.name}`, error);
+        return rejectWithValue(`Error during loading loadWeather ${city.name} - ${error}` as string);
+      }
   },
 );
 
