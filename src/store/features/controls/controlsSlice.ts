@@ -19,9 +19,9 @@ export enum Status {
 }
 export interface ControlState {
   keys: OptionType[];
-  selected: CityData[],
-  displayedArray: CityData[],
-  current: CityData | null,
+  selected: CityData[];
+  displayed: CityData[];
+  current: CityData | null;
   sortBy: Sort;
   order: boolean;
 
@@ -32,7 +32,7 @@ export interface ControlState {
 const initialState: ControlState = {
   keys: [],
   selected: [],
-  displayedArray: [],
+  displayed: [],
   current: null,
   sortBy: Sort.byPopulation,
   order: true,
@@ -74,12 +74,18 @@ const controlSlice = createSlice({
       state.keys = action.payload;
     },
     addChosenCountry: (state: ControlState, action: PayloadAction<CityData[]>) => {
+      const newDisplayedObj: { [key: string]: CityData } = {}
+
+      for (const key of [...action.payload, ...state.selected]) {
+        newDisplayedObj[key.geoNameId] = key;
+      }
+
       if (state.selected.length) {
         const selectedCitiesGeoNameId = state.selected.map(c => c.geoNameId);
 
-        state.displayedArray = ([...action.payload.filter(c => !selectedCitiesGeoNameId.includes(c.geoNameId)), ...state.selected]);
+        state.displayed = ([...action.payload.filter(c => !selectedCitiesGeoNameId.includes(c.geoNameId)), ...state.selected]);       
       } else {
-        state.displayedArray = action.payload;
+        state.displayed = action.payload;
       }
     },
     addSelected: (state: ControlState, action: PayloadAction<CityData>) => {
@@ -92,8 +98,8 @@ const controlSlice = createSlice({
       state.current = state.current?.geoNameId !== payload.geoNameId ? payload : null;
     },
     checkCurrent: (state: ControlState) => {     
-      const isVisible = state.displayedArray.find(c => c.geoNameId === state.current?.geoNameId); 
-      state.current = isVisible ? state.current : state.displayedArray[0] || state.selected[0] || null;
+      const isVisible = state.displayed.find(c => c.geoNameId === state.current?.geoNameId); 
+      state.current = isVisible ? state.current : state.displayed[0] || state.selected[0] || null;
     },
     sortTable: (state: ControlState, { payload }: PayloadAction<Sort | undefined>) => {
       if (payload !== undefined) {
@@ -105,23 +111,23 @@ const controlSlice = createSlice({
       
       switch (state.sortBy) {
         case Sort.byNames:
-          state.displayedArray = [...state.displayedArray].sort((a, b) => orderValue * a.name.localeCompare(b.name));
+          state.displayed = [...state.displayed].sort((a, b) => orderValue * a.name.localeCompare(b.name));
           break;
     
         case Sort.byMax:
-          state.displayedArray = [...state.displayedArray].sort((a, b) => orderValue * (Number(a.weather?.dailyMax) - Number(b.weather?.dailyMax)));
+          state.displayed = [...state.displayed].sort((a, b) => orderValue * (Number(a.weather?.dailyMax) - Number(b.weather?.dailyMax)));
           break;
     
         case Sort.byMin:
-          state.displayedArray = [...state.displayedArray].sort((a, b) => orderValue * (Number(a.weather?.dailyMin) - Number(b.weather?.dailyMin)));
+          state.displayed = [...state.displayed].sort((a, b) => orderValue * (Number(a.weather?.dailyMin) - Number(b.weather?.dailyMin)));
           break;
     
         default:
-          state.displayedArray = [...state.displayedArray].sort((a, b) => orderValue * (Number(a.population) - Number(b.population)));
+          state.displayed = [...state.displayed].sort((a, b) => orderValue * (Number(a.population) - Number(b.population)));
       }
     },
     setDisplayed: (state: ControlState, action: PayloadAction<CityData[]>) => {
-      state.displayedArray = action.payload;
+      state.displayed = action.payload;
     },
     resetState: () => {
       return initialState;
@@ -158,7 +164,7 @@ export const {
 
 export const selectKeys = (state: RootState) => state.control.keys;
 export const selectSelected = (state: RootState) => state.control.selected;
-export const selectDisplayed = (state: RootState) => state.control.displayedArray;
+export const selectDisplayed = (state: RootState) => state.control.displayed;
 export const selectCurrent = (state: RootState) => state.control.current;
 export const selectSortBy = (state: RootState) => state.control.sortBy;
 export const selectOrder = (state: RootState) => state.control.order;
