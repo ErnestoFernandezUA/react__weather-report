@@ -20,5 +20,10 @@ export interface CityData {
   dem: string;
   timeZone: string;
   modificationDate: string;
-  weather?: WeatherAverage;
+  
+  weather?: WeatherAverage | null;
+  // controls?: {
+  //   isLoading?: boolean;
+  //   error?: string | null;
+  // }   
 }

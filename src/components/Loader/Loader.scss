@@ -1,0 +1,33 @@
+.Loader {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.Loader__container {
+  transform-origin: center;
+  animation: rotate 2s linear infinite;
+  line-height: 10px;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+
+  25% {
+    transform: rotate(90deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  75% {
+    transform: rotate(270deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { IoArrowDownOutline, IoArrowUp } from "react-icons/io5";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectOrder, selectSortBy, sort } from "../../store/features/controls/controlsSlice";
+import { selectOrder, selectSortBy, sortTable } from "../../store/features/controls/controlsSlice";
 import { Sort } from "../../types/Sort";
 
 import './HeadCell.scss';
@@ -31,7 +31,7 @@ export const HeadCell:React.FC<HeadCellProps> = ({
   const dispatch = useAppDispatch();
   const sortBy = useAppSelector(selectSortBy);
   const order = useAppSelector(selectOrder);
-  const onClickSort = (sortBy?: Sort) => sortBy && dispatch(sort(sortBy));
+  const onClickSort = (sortBy?: Sort) => sortBy && dispatch(sortTable(sortBy));
   const isActive = sortBy === type;
   const direction = inverse ? !order : order;
 

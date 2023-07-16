@@ -22,7 +22,7 @@ const persistConfig = {
   key: 'root',
   storage,
   whitelist: [
-    'cash',
+    'cash', 'control',
   ],
   blacklist: ['user'],
 };
@@ -38,7 +38,7 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    thunk: false,
+    thunk: true,
     serializableCheck: {
       ignoredActions: [
         FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER,

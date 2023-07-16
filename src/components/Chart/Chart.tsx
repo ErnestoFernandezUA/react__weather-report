@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { FC, ReactNode, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { WeatherData } from "../../types/Weather";
 import { useAppSelector } from "../../store/hooks";
@@ -62,7 +62,7 @@ export const Chart: FC<ChartProps> = ({ className }) => {
   }, []);
 
   const maxYValue = average ? Math.ceil(Math.max(...average.map(a => a.value))) : 0;
-  const widthBarChart = windowWidth > 1024 ? width * 0.8 - 30 : width - 30;
+  const widthBarChart = windowWidth > 1024 ? width * 0.8 : width;
 
   return (
     <WrapperContent className={"Chart"}>
@@ -86,6 +86,9 @@ export const Chart: FC<ChartProps> = ({ className }) => {
               padding={{ left: 10, right: 10 }}
               tickLine={{ stroke: '#8884d8' }}
               axisLine={{ stroke: '#8884d8' }}
+              style={{ 
+                position: 'absolute',
+                border: '10px solid red' }}
             />
             <YAxis
               domain={[0, maxYValue * 1.3]} 
