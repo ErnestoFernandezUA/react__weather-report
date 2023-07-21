@@ -1,6 +1,4 @@
-import { FC, ReactNode, useEffect, useRef, useState } from "react";
-import axios from "axios";
-import { WeatherData } from "../../types/Weather";
+import { FC, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../store/hooks";
 import { selectCurrent } from "../../store/features/controls/controlsSlice";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';

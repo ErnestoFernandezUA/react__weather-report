@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import Select, { ControlProps, OptionProps, StylesConfig, CSSObjectWithLabel, GroupBase, MenuListProps, ActionMeta, MultiValue } from 'react-select';
+import Select, { 
+  ControlProps,
+  OptionProps,
+  StylesConfig,
+  CSSObjectWithLabel,
+  GroupBase,
+  MenuListProps,
+  ActionMeta,
+  MultiValue,
+} from 'react-select';
 import classNames from "classnames";
 import { CityData } from "../../types/City";
 import data from '../../data/data.json';
