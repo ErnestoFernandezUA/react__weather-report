@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { Controls } from '../Controls';
-import { Table } from '../Table';
 import { WrapperContent } from '../WrapperContent';
+import { Table } from '../Table';
 import './DataViewer.scss';
 
 interface DataViewerProps { className?: string; }
