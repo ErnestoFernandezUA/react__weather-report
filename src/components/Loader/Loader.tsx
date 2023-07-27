@@ -1,7 +1,7 @@
-import { RiLoader4Fill } from "react-icons/ri";
+import { RiLoader4Fill } from 'react-icons/ri';
 import './Loader.scss';
 
-export default function Loader() {
+export const Loader: React.FC = () => {
   return (
     <div className="Loader">
       <div className="Loader__container">
@@ -9,4 +9,4 @@ export default function Loader() {
       </div>
     </div>
   );
-}
+};

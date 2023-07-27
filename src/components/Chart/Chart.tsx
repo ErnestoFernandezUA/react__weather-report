@@ -1,11 +1,18 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { useAppSelector } from "../../store/hooks";
-import { selectCurrent } from "../../store/features/controls/controlsSlice";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { WrapperContent } from "../WrapperContent";
-
+import {
+  FC, useEffect, useRef, useState,
+} from 'react';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
+} from 'recharts';
+import classNames from 'classnames';
+import { useAppSelector } from '../../store/hooks';
+import {
+  selectCurrent,
+  selectDisplayed,
+} from '../../store/features/controls/controlsSlice';
+import { WrapperContent } from '../WrapperContent';
+import { getWeekWR } from '../../api/weather';
 import './Chart.scss';
-import { getWeekWR } from "../../api/weather";
 
 interface Average {
   day: number,
@@ -23,29 +30,36 @@ export const Chart: FC<ChartProps> = ({ className }) => {
   const chartContentRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState<number>(0);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const displayed = useAppSelector(selectDisplayed);
 
   useEffect(() => {
-    if (!current) return;
+    if (!current) {
+      return;
+    }
 
     getWeekWR(current)
       .then(res => {
-        const average = res.daily.time.map((dateString, index) => {
+        const newAverage = res.daily.time.map((dateString, index) => {
           const date = new Date(dateString);
           const dayOfMonth = date.getDate();
           const month = date.getMonth();
           const year = date.getFullYear();
-          const value = Math.ceil((res.daily.temperature_2m_max[index] + res.daily.temperature_2m_min[index]) / 2 * 10) / 10;
+          const value = Math.ceil(((res.daily.temperature_2m_max[index]
+            + res.daily.temperature_2m_min[index]) / 2) * 10) / 10;
 
-          return { day: dayOfMonth, value, month, year };
+          return {
+            day: dayOfMonth, value, month, year,
+          };
         });
 
-        setAverage(average);
+        setAverage(newAverage);
       })
+      // eslint-disable-next-line no-console
       .catch(error => console.error(`Error during loading loadWeatherReport ${current.name}`, error));
-  }, [current])
+  }, [current]);
 
   useEffect(() => {
-    if(chartContentRef.current) {
+    if (chartContentRef.current) {
       setWidth(chartContentRef.current.clientWidth);
     }
   }, [average, windowWidth]);
@@ -53,57 +67,71 @@ export const Chart: FC<ChartProps> = ({ className }) => {
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-    }
+    };
 
     window.addEventListener('resize', handleResize);
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const maxYValue = average ? Math.ceil(Math.max(...average.map(a => a.value))) : 0;
+  useEffect(() => {
+    if (!displayed.length) {
+      setAverage(null);
+    }
+  }, [displayed]);
+
+  const maxYValue = average
+    ? Math.ceil(Math.max(...average.map(a => a.value)))
+    : 0;
   const widthBarChart = windowWidth > 1024 ? width * 0.8 : width;
 
   return (
-    <WrapperContent className={"Chart"}>
-      <h2 className="Chart__title">{current ? current?.name : 'chose city...'}</h2>
+    <WrapperContent className={classNames('Chart', className)}>
+      <h2 className="Chart__title">
+        {current ? current?.name : 'chose city...'}
+      </h2>
 
       {average ? (
         <div className="Chart__content" ref={chartContentRef}>
           <BarChart
-            width={widthBarChart} 
-            height={widthBarChart * 0.6} 
+            width={widthBarChart}
+            height={widthBarChart * 0.6}
             data={average}
             margin={{ top: 10, right: 0, bottom: 0 }}
           >
-            <CartesianGrid 
+            <CartesianGrid
               strokeDasharray="2 2"
             />
-            <XAxis 
-              dataKey="day"  
+            <XAxis
+              dataKey="day"
               stroke="#8884d8"
-              tick={{ fontSize: 10, fill: '#666' }} 
+              tick={{ fontSize: 10, fill: '#666' }}
               padding={{ left: 10, right: 10 }}
               tickLine={{ stroke: '#8884d8' }}
               axisLine={{ stroke: '#8884d8' }}
-              style={{ 
+              style={{
                 position: 'absolute',
-                border: '10px solid red' }}
+                border: '10px solid red',
+              }}
             />
             <YAxis
-              domain={[0, maxYValue * 1.3]} 
-              tick={{ fontSize: 10, fill: '#666' }} 
+              domain={[0, maxYValue * 1.3]}
+              tick={{ fontSize: 10, fill: '#666' }}
               // padding={{ top: 20, bottom: 0 }}
               tickMargin={4}
-              ticks={[10,20, 30, 40]}
+              ticks={[10, 20, 30, 40]}
               tickLine={{ stroke: '#8884d8' }}
               axisLine={{ stroke: '#8884d8' }}
             />
             <Tooltip
               // wrapperStyle={{ backgroundColor: '#f0f0f0', border: '1px solid #ddd' }}
-              // labelStyle={{ fontSize: 14, color: '#c41919' }} 
+              // labelStyle={{ fontSize: 14, color: '#c41919' }}
               // itemStyle={{ fontSize: 14, color: '#e01313' }}
-              wrapperStyle={{ backgroundColor: '#f0f0f0', border: '1px solid #ddd' }}
-              labelStyle={{ fontSize: 14, color: '#c41919' }} 
+              wrapperStyle={{
+                backgroundColor: '#f0f0f0',
+                border: '1px solid #ddd',
+              }}
+              labelStyle={{ fontSize: 14, color: '#c41919' }}
               itemStyle={{ fontSize: 14, color: '#e01313' }}
             />
             <Bar dataKey="value" fill="#8884d8" />
@@ -111,5 +139,5 @@ export const Chart: FC<ChartProps> = ({ className }) => {
         </div>
       ) : null}
     </WrapperContent>
-  )
+  );
 };

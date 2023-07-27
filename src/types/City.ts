@@ -1,8 +1,8 @@
-import { WeatherAverage } from "./Weather";
+import { WeatherAverage } from './Weather';
 
 export interface CityData {
-  geoNameId: string; 
-  name: string; 
+  geoNameId: string;
+  name: string;
   asciiName: string;
   alternateNames: string;
   latitude: string;
@@ -20,6 +20,6 @@ export interface CityData {
   dem: string;
   timeZone: string;
   modificationDate: string;
-  
+
   weather?: WeatherAverage | null;
 }

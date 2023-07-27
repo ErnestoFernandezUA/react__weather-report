@@ -2,6 +2,7 @@ import {
   createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit';
+// eslint-disable-next-line import/no-cycle
 import { RootState } from '../..';
 import { CityData } from '../../../types/City';
 
@@ -25,7 +26,7 @@ const cashSlice = createSlice({
       state.storage[action.payload.geoNameId] = {
         city: action.payload,
         timerId: Date.now().toString(),
-      }
+      };
     },
     resetState: () => {
       return initialState;
@@ -40,4 +41,3 @@ export const {
 } = cashSlice.actions;
 
 export const selectCash = (state: RootState) => state.cash.storage;
-

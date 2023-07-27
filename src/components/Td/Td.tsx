@@ -1,8 +1,11 @@
-import { ReactNode, useEffect, useState } from "react";
-import classNames from "classnames";
-import { useAppSelector } from "../../store/hooks";
-import { selectOrder, selectSortBy } from "../../store/features/controls/controlsSlice";
-import { Sort } from "../../types/Sort";
+import { ReactNode, useEffect, useState } from 'react';
+import classNames from 'classnames';
+import { useAppSelector } from '../../store/hooks';
+import {
+  selectOrder,
+  selectSortBy,
+} from '../../store/features/controls/controlsSlice';
+import { Sort } from '../../types/Sort';
 
 import './Td.scss';
 
@@ -12,7 +15,7 @@ interface TdProps {
   children?: ReactNode;
 }
 
-export const Td:React.FC<TdProps> = ({ 
+export const Td: React.FC<TdProps> = ({
   type,
   title,
   children,
@@ -27,14 +30,14 @@ export const Td:React.FC<TdProps> = ({
     }
 
     setTimeout(() => setIsJustSorted(false), 300);
-  }, [sortBy, order, type])
+  }, [sortBy, order, type]);
 
   return (
-    <td 
-      className={classNames({'Td--just-sorted': isJustSorted})}
+    <td
+      className={classNames({ 'Td--just-sorted': isJustSorted })}
     >
       {title}
       {children}
     </td>
-  )
+  );
 };

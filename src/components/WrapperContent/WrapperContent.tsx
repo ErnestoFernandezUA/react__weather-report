@@ -1,5 +1,5 @@
-import classNames from "classnames";
-import { ReactNode } from "react";
+import classNames from 'classnames';
+import { ReactNode } from 'react';
 import './WrapperContent.scss';
 
 interface WrapperContentViewerProps {
@@ -7,11 +7,13 @@ interface WrapperContentViewerProps {
   children?: ReactNode;
 }
 
-export const WrapperContent:React.FC<WrapperContentViewerProps> = ({ className, children }) => {
-
+export const WrapperContent: React.FC<WrapperContentViewerProps> = ({
+  className,
+  children,
+}) => {
   return (
-    <section className={classNames("WrapperContent", className)}>
+    <section className={classNames('WrapperContent', className)}>
       {children}
     </section>
-  )
+  );
 };

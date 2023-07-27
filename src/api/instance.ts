@@ -10,6 +10,7 @@ export const client = {
   async get<T>(path: string, params?: AxiosRequestConfig) {
     const response = await instance.get<T>(path, params);
 
+    // eslint-disable-next-line no-console
     console.log('get:', baseURL + path);
 
     return response.data;

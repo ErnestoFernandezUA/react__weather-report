@@ -1,5 +1,5 @@
-import { ReactNode, useEffect } from "react";
-import Loader from "../Loader/Loader";
+import { ReactNode, useEffect } from 'react';
+import { Loader } from '../Loader';
 
 interface ConditionalRendererProps {
   child?: ReactNode;
@@ -7,23 +7,21 @@ interface ConditionalRendererProps {
   error?: string | null | undefined;
 }
 
-export const ConditionalRenderer:React.FC<ConditionalRendererProps>  = ({
+export const ConditionalRenderer: React.FC<ConditionalRendererProps> = ({
   child,
-  isLoading = false, 
+  isLoading = false,
   error,
 }) => {
   useEffect(() => {
-  }, [isLoading, error, child])
+  }, [isLoading, error, child]);
 
   if (isLoading) {
-    return <Loader />
+    return <Loader />;
   }
 
   if (error) {
-    return <>{error}</>
+    return <>{error}</>;
   }
 
-  return (
-    <>{child}</>
-  )
+  return <>{child}</>;
 };

@@ -1,8 +1,12 @@
-import classNames from "classnames";
-import { IoArrowDownOutline, IoArrowUp } from "react-icons/io5";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectOrder, selectSortBy, sortTable } from "../../store/features/controls/controlsSlice";
-import { Sort } from "../../types/Sort";
+import classNames from 'classnames';
+import { IoArrowDownOutline, IoArrowUp } from 'react-icons/io5';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  selectOrder,
+  selectSortBy,
+  sortTable,
+} from '../../store/features/controls/controlsSlice';
+import { Sort } from '../../types/Sort';
 
 import './HeadCell.scss';
 
@@ -13,7 +17,7 @@ const headerControls: {
   [Sort.byPopulation]: { title: 'Population' },
   [Sort.byMax]: { title: 'Max Temp' },
   [Sort.byMin]: { title: 'Min Temp' },
-}
+};
 
 interface HeadCellProps {
   type?: Sort;
@@ -22,7 +26,7 @@ interface HeadCellProps {
   className?: string;
 }
 
-export const HeadCell:React.FC<HeadCellProps> = ({ 
+export const HeadCell: React.FC<HeadCellProps> = ({
   type,
   title,
   className,
@@ -31,23 +35,22 @@ export const HeadCell:React.FC<HeadCellProps> = ({
   const dispatch = useAppDispatch();
   const sortBy = useAppSelector(selectSortBy);
   const order = useAppSelector(selectOrder);
-  const onClickSort = (sortBy?: Sort) => sortBy && dispatch(sortTable(sortBy));
+  const onClickSort = () => type && dispatch(sortTable(type));
   const isActive = sortBy === type;
   const direction = inverse ? !order : order;
 
   return (
-    <th 
-      onClick={() => onClickSort(type)}
+    <th
+      onClick={onClickSort}
       className={classNames('HeadCell',
-        {'HeadCell--isClickable': type},
-        {'HeadCell--active': isActive},
-        className,
-      )}
+        { 'HeadCell--isClickable': type },
+        { 'HeadCell--active': isActive },
+        className)}
     >
       <div className="HeadCell__content">
-        {title ? title : type && headerControls[type].title}
+        {title || (type && headerControls[type].title)}
         {isActive && (direction ? <IoArrowDownOutline /> : <IoArrowUp />)}
       </div>
     </th>
-  )
+  );
 };

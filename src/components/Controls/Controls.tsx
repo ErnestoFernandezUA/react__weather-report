@@ -1,62 +1,66 @@
-import { useEffect, useState } from "react";
-import Select, { 
+import Select, {
   ControlProps,
   OptionProps,
   StylesConfig,
   CSSObjectWithLabel,
-  GroupBase,
-  MenuListProps,
   ActionMeta,
   MultiValue,
 } from 'react-select';
-import classNames from "classnames";
-import { CityData } from "../../types/City";
-import data from '../../data/data.json';
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { addChosenCountry, saveKeys, selectDisplayed, selectKeys } from "../../store/features/controls/controlsSlice";
-import './Controls.scss';
+import classNames from 'classnames';
+import { CityData } from '../../types/City';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  changeDisplayed,
+  saveKeys,
+  selectAllData,
+  selectAllKeys,
+  selectSelectedCountries,
+} from '../../store/features/controls/controlsSlice';
 
 type OptionType = { value: string; label: string };
+
+enum ActionSelect {
+  SelectOption = 'select-option',
+  RemoveValue = 'remove-value',
+  PopValue = 'pop-value',
+}
 
 interface ControlsProps {
   className?: string;
 }
 
-export const Controls:React.FC<ControlsProps> = ({ className }) => {
-  const [allData, setAllData] = useState<{ [key: string]: CityData[] } | null>(null);
-  const [keys, setKeys] = useState<OptionType[] | null>(null);
-  const displayed = useAppSelector(selectDisplayed);
+export const Controls: React.FC<ControlsProps> = ({ className }) => {
   const dispatch = useAppDispatch();
-  const savedKeys = useAppSelector(selectKeys);
+  const selectedCountries = useAppSelector(selectSelectedCountries);
+  const allData = useAppSelector(selectAllData);
+  const keys = useAppSelector(selectAllKeys);
 
-  useEffect(() => {
-    setAllData(data.data);
-    setKeys(data.keys);
-  }, [])
-
-  useEffect(() => {   
-    allData && !displayed.length && dispatch(addChosenCountry(allData[data.keys[0].value]));
-  }, [allData])
-
-  const onChangeCountryHandler = (selectedOptions: MultiValue<OptionType>, { action }: ActionMeta<OptionType>) => {
-    if (action === 'select-option' || action === 'remove-value' || action === 'pop-value') {
+  const onChangeCountryHandler = (
+    selectedOptions: MultiValue<OptionType>,
+    { action }: ActionMeta<OptionType>,
+  ) => {
+    if (action === ActionSelect.SelectOption
+    || action === ActionSelect.RemoveValue
+    || action === ActionSelect.PopValue) {
       if (allData && Array.isArray(selectedOptions)) {
-        const allCountries: CityData[] = []; 
-  
-        for (const option of selectedOptions) {
+        const allCountries: CityData[] = [];
+
+        selectedOptions.forEach((option: OptionType) => {
           if (option.value in allData) {
             allCountries.push(...allData[option.value]);
           }
-        }
-    
-        dispatch(saveKeys(selectedOptions))
-        dispatch(addChosenCountry(allCountries));
+        });
+
+        dispatch(saveKeys(selectedOptions));
+        dispatch(changeDisplayed(allCountries));
       }
     }
   };
 
   const customStyles: StylesConfig<OptionType, true> = {
-    control: (base: CSSObjectWithLabel, state: ControlProps<OptionType, true>) => {
+    control: (
+      base: CSSObjectWithLabel, state: ControlProps<OptionType, true>,
+    ) => {
       return {
         ...base,
         background: '#313131',
@@ -66,45 +70,66 @@ export const Controls:React.FC<ControlsProps> = ({ className }) => {
         '&:hover': {
           borderColor: state.isFocused ? '#191919' : '#e2e2e2',
           borderRadius: state.isFocused ? '12px 12px 12px 12px' : 12,
-        }
-      }},
-    option: (styles: CSSObjectWithLabel, { isDisabled, isFocused, isSelected }: OptionProps<OptionType, true>) => {
+        },
+      };
+    },
+    option: (
+      styles: CSSObjectWithLabel,
+      { isDisabled, isFocused, isSelected }: OptionProps<OptionType, true>,
+    ) => {
+      let backgroundColor;
+      let color;
+      let cursor;
+
+      if (isDisabled) {
+        backgroundColor = undefined;
+        color = '#ccc';
+        cursor = 'not-allowed';
+      } else if (isSelected) {
+        backgroundColor = '#087217';
+        color = 'white';
+        cursor = 'default';
+      } else if (isFocused) {
+        backgroundColor = '#e2e2e2';
+        color = 'black';
+      } else {
+        backgroundColor = undefined;
+        color = 'black';
+      }
+
       return {
         ...styles,
-        backgroundColor: isDisabled ? undefined : (isSelected ? '#087217' : (isFocused ? '#e2e2e2' : undefined)),
-        color: isDisabled ? '#ccc' : (isSelected ? 'white' : 'black'),
-        cursor: isDisabled ? 'not-allowed' : 'default',
+        backgroundColor,
+        color,
+        cursor,
         borderRadius: '12px',
       };
     },
-    menuList: (base: CSSObjectWithLabel, props: MenuListProps<OptionType, true, GroupBase<OptionType>>) => {
+    menuList: (
+      base: CSSObjectWithLabel,
+      // props: MenuListProps<OptionType, true, GroupBase<OptionType>>,
+    ) => {
       return {
         ...base,
         borderRadius: '12px',
       };
     },
-  }
-  
-  const defaultValue = savedKeys.length 
-    ? savedKeys
-    : keys && keys.length > 0 
-      ? [keys[0]]
-      : undefined;
+  };
 
   return (
-    <div className={classNames("Controls", className)}>
+    <div className={classNames('Controls', className)}>
       <label htmlFor="countries">
-        {defaultValue && keys?.length && (
-          <Select 
-             id="countries"
-             onChange={onChangeCountryHandler}
-             options={keys || []} 
-             defaultValue={defaultValue}
-             isMulti={true}
-             styles={customStyles}
+        {keys?.length && (
+          <Select
+            id="countries"
+            onChange={onChangeCountryHandler}
+            options={keys || []}
+            defaultValue={selectedCountries}
+            isMulti
+            styles={customStyles}
           />
         )}
       </label>
     </div>
-  )
+  );
 };

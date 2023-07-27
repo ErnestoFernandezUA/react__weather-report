@@ -1,16 +1,16 @@
 .HeadCell {
   width: fit-content;
   background-color: #020202;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 500;
-  
+
   &__content {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
   }
-  
+
   &--active {
     background-color: #f00000;
   }
