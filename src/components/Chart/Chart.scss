@@ -1,6 +1,7 @@
 .Chart {
   color: rgba(164, 164, 164, 1);
   padding: 20px;
+  user-select: none;
 
   &__container {
     position: relative;
