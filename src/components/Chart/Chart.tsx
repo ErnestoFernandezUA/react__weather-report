@@ -1,9 +1,6 @@
 import {
-  FC, useEffect, useRef, useState,
+  FC, useEffect, useState,
 } from 'react';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
-} from 'recharts';
 import classNames from 'classnames';
 import { useAppSelector } from '../../store/hooks';
 import {
@@ -15,8 +12,8 @@ import { getWeekWR } from '../../api/weather';
 import './Chart.scss';
 
 interface Average {
-  day: number,
   value: number,
+  day: number,
   month: number,
   year: number,
 }
@@ -26,11 +23,12 @@ interface ChartProps {
 
 export const Chart: FC<ChartProps> = ({ className }) => {
   const current = useAppSelector(selectCurrent);
-  const [average, setAverage] = useState<Average[] | null>(null);
-  const chartContentRef = useRef<HTMLDivElement | null>(null);
-  const [width, setWidth] = useState<number>(0);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const displayed = useAppSelector(selectDisplayed);
+  const [average, setAverage] = useState<Average[]>([]);
+
+  const [temperatureStep, setTemperatureStep] = useState<1 | 5 | 10>(1);
+  const [maxYValue, setMaxYValue] = useState(0);
+  const [verticalAxe, setVerticalAxe] = useState<number[]>([]);
 
   useEffect(() => {
     if (!current) {
@@ -53,37 +51,45 @@ export const Chart: FC<ChartProps> = ({ className }) => {
         });
 
         setAverage(newAverage);
+
+        const max = Math.abs(Math.max(...newAverage.map(el => el.value)));
+        const min = Math.abs(Math.min(...newAverage.map(el => el.value)));
+
+        setMaxYValue(newAverage
+          ? Math.ceil(Math.ceil(Math.max(...newAverage.map(a => a.value)))
+            / 5) * 5
+          : 0);
+
+        if (max > 20 || min > 20) {
+          setTemperatureStep(10);
+        } else if (max > 10 || min > 10) {
+          setTemperatureStep(5);
+        }
       })
       // eslint-disable-next-line no-console
       .catch(error => console.error(`Error during loading loadWeatherReport ${current.name}`, error));
   }, [current]);
 
   useEffect(() => {
-    if (chartContentRef.current) {
-      setWidth(chartContentRef.current.clientWidth);
-    }
-  }, [average, windowWidth]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
     if (!displayed.length) {
-      setAverage(null);
+      setAverage([]);
     }
   }, [displayed]);
 
-  const maxYValue = average
-    ? Math.ceil(Math.max(...average.map(a => a.value)))
-    : 0;
-  const widthBarChart = windowWidth > 1024 ? width * 0.8 : width;
+  useEffect(() => {
+    const max = Math.max(...average.map(el => el.value));
+    const min = Math.min(...average.map(el => el.value));
+
+    let start = min < 0 ? min - (min % temperatureStep) - temperatureStep : 0;
+    const newVerticalAxe = [];
+
+    while (start < max + temperatureStep) {
+      newVerticalAxe.push(start);
+      start += temperatureStep;
+    }
+
+    setVerticalAxe(newVerticalAxe);
+  }, [temperatureStep]);
 
   return (
     <WrapperContent className={classNames('Chart', className)}>
@@ -91,53 +97,44 @@ export const Chart: FC<ChartProps> = ({ className }) => {
         {current ? current?.name : 'chose city...'}
       </h2>
 
-      {average ? (
-        <div className="Chart__content" ref={chartContentRef}>
-          <BarChart
-            width={widthBarChart}
-            height={widthBarChart * 0.6}
-            data={average}
-            margin={{ top: 10, right: 0, bottom: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="2 2"
-            />
-            <XAxis
-              dataKey="day"
-              stroke="#8884d8"
-              tick={{ fontSize: 10, fill: '#666' }}
-              padding={{ left: 10, right: 10 }}
-              tickLine={{ stroke: '#8884d8' }}
-              axisLine={{ stroke: '#8884d8' }}
-              style={{
-                position: 'absolute',
-                border: '10px solid red',
-              }}
-            />
-            <YAxis
-              domain={[0, maxYValue * 1.3]}
-              tick={{ fontSize: 10, fill: '#666' }}
-              // padding={{ top: 20, bottom: 0 }}
-              tickMargin={4}
-              ticks={[10, 20, 30, 40]}
-              tickLine={{ stroke: '#8884d8' }}
-              axisLine={{ stroke: '#8884d8' }}
-            />
-            <Tooltip
-              // wrapperStyle={{ backgroundColor: '#f0f0f0', border: '1px solid #ddd' }}
-              // labelStyle={{ fontSize: 14, color: '#c41919' }}
-              // itemStyle={{ fontSize: 14, color: '#e01313' }}
-              wrapperStyle={{
-                backgroundColor: '#f0f0f0',
-                border: '1px solid #ddd',
-              }}
-              labelStyle={{ fontSize: 14, color: '#c41919' }}
-              itemStyle={{ fontSize: 14, color: '#e01313' }}
-            />
-            <Bar dataKey="value" fill="#8884d8" />
-          </BarChart>
+      {!!average.length && (
+        <div className="Chart">
+          <div className="Chart__container">
+            <div className="Chart__vertical-axe">
+              {verticalAxe.map(value => (
+                <div key={value} className="Chart__vertical-axe-value">
+                  {value}
+                  <div className="Chart__line" />
+                </div>
+              ))}
+            </div>
+
+            <div className="Chart__columns">
+              {average.map(el => (
+                <div
+                  key={el.day}
+                  className="Chart__column"
+                >
+                  <div
+                    className="Chart__tower"
+                    style={{ height: `${Math.floor((el.value * 200) / maxYValue)}px` }}
+                  >
+                    <div
+                      className="Chart__value"
+                      style={{ top: `${Math.floor((el.value * 100) / maxYValue / 2)}%` }}
+                    >
+                      {`${el.value}°C`}
+                    </div>
+                  </div>
+                  <p className="Chart__day">
+                    {el.day}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      ) : null}
+      )}
     </WrapperContent>
   );
 };
