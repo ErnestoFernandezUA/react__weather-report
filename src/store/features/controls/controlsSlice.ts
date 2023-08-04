@@ -183,7 +183,7 @@ const controlSlice = createSlice({
   name: 'controls',
   initialState,
   reducers: {
-    saveKeys: (state, action) => {
+    saveKeys: (state, action: PayloadAction<OptionType[]>) => {
       state.selectedCountries = action.payload;
     },
     changeDisplayed: (

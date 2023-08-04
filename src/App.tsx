@@ -1,4 +1,4 @@
-import { Chart } from './components/Chart';
+import { ChartViewer } from './components/ChartViewer';
 import { DataViewer } from './components/DataViewer';
 import './App.scss';
 
@@ -10,7 +10,7 @@ function App() {
       </header>
 
       <main>
-        <Chart />
+        <ChartViewer />
         <DataViewer />
       </main>
     </div>

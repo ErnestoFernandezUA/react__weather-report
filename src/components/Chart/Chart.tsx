@@ -2,133 +2,137 @@ import {
   FC, useEffect, useState,
 } from 'react';
 import classNames from 'classnames';
-import { useAppSelector } from '../../store/hooks';
-import {
-  selectCurrent,
-  selectDisplayed,
-} from '../../store/features/controls/controlsSlice';
 import { WrapperContent } from '../WrapperContent';
-import { getWeekWR } from '../../api/weather';
 import './Chart.scss';
 
-interface Average {
+export interface Average {
   value: number,
   day: number,
   month: number,
   year: number,
 }
 interface ChartProps {
+  average: Average[];
   className?: string;
+  heightChart?: number;
 }
 
-export const Chart: FC<ChartProps> = ({ className }) => {
-  const current = useAppSelector(selectCurrent);
-  const displayed = useAppSelector(selectDisplayed);
-  const [average, setAverage] = useState<Average[]>([]);
+export const Chart: FC<ChartProps> = ({
+  className,
+  average,
+  heightChart = 240,
+}) => {
+  const [labelsVerticalAxe, setLabelsVerticalAxe] = useState<number[]>([]);
+  const [height, setHeight] = useState<number>(1);
+  const [delta, setDelta] = useState<number>(0);
+  const [step, setStep] = useState<number>(0);
+  const [hoverValue, setHoverValue] = useState<number | null>(null);
 
-  const [temperatureStep, setTemperatureStep] = useState<1 | 5 | 10>(1);
-  const [maxYValue, setMaxYValue] = useState(0);
-  const [verticalAxe, setVerticalAxe] = useState<number[]>([]);
-
-  useEffect(() => {
-    if (!current) {
-      return;
-    }
-
-    getWeekWR(current)
-      .then(res => {
-        const newAverage = res.daily.time.map((dateString, index) => {
-          const date = new Date(dateString);
-          const dayOfMonth = date.getDate();
-          const month = date.getMonth();
-          const year = date.getFullYear();
-          const value = Math.ceil(((res.daily.temperature_2m_max[index]
-            + res.daily.temperature_2m_min[index]) / 2) * 10) / 10;
-
-          return {
-            day: dayOfMonth, value, month, year,
-          };
-        });
-
-        setAverage(newAverage);
-
-        const max = Math.abs(Math.max(...newAverage.map(el => el.value)));
-        const min = Math.abs(Math.min(...newAverage.map(el => el.value)));
-
-        setMaxYValue(newAverage
-          ? Math.ceil(Math.ceil(Math.max(...newAverage.map(a => a.value)))
-            / 5) * 5
-          : 0);
-
-        if (max > 20 || min > 20) {
-          setTemperatureStep(10);
-        } else if (max > 10 || min > 10) {
-          setTemperatureStep(5);
-        }
-      })
-      // eslint-disable-next-line no-console
-      .catch(error => console.error(`Error during loading loadWeatherReport ${current.name}`, error));
-  }, [current]);
+  const paddingContainer = 20;
+  const heightContainer = heightChart - 2 * paddingContainer;
 
   useEffect(() => {
-    if (!displayed.length) {
-      setAverage([]);
-    }
-  }, [displayed]);
+    const maxValue = Math.max(...average.map(el => el.value));
+    const minValue = Math.min(...average.map(el => el.value));
+    let newStep = 1;
 
-  useEffect(() => {
-    const max = Math.max(...average.map(el => el.value));
-    const min = Math.min(...average.map(el => el.value));
-
-    let start = min < 0 ? min - (min % temperatureStep) - temperatureStep : 0;
-    const newVerticalAxe = [];
-
-    while (start < max + temperatureStep) {
-      newVerticalAxe.push(start);
-      start += temperatureStep;
+    if (Math.abs(maxValue) > 30 || Math.abs(minValue) > 30) {
+      newStep = 10;
+    } else if (Math.abs(maxValue) > 10 || Math.abs(minValue) > 10) {
+      newStep = 5;
     }
 
-    setVerticalAxe(newVerticalAxe);
-  }, [temperatureStep]);
+    const newLabels = [];
+
+    const max = maxValue >= 0
+      ? maxValue - (maxValue % newStep) + newStep
+      : 0;
+
+    const min = minValue <= 0
+      ? minValue - (minValue % newStep) - newStep
+      : 0;
+
+    for (let i = min; i <= max; i += newStep) {
+      newLabels.push(i);
+    }
+
+    const newHight = (heightContainer / (newLabels.length - 1))
+    / newStep;
+
+    const newDelta = max * newHight;
+
+    setStep(newStep);
+    setLabelsVerticalAxe(newLabels);
+    setHeight(newHight);
+    setDelta(newDelta);
+  }, [average]);
+
+  const styleVerticalAxeItem = (v: number) => ({
+    top: `${delta - v * height}px`,
+  });
+
+  const styleTower = (value: number) => ({
+    height: `${Math.abs(value * height)}px`,
+    top: `${value > 0
+      ? -heightContainer - paddingContainer + delta
+      : -value * height - heightContainer - paddingContainer + delta}px`,
+  });
+
+  const isHighLight = (v: number) => hoverValue !== null
+  && Math.abs(v - hoverValue) < step;
 
   return (
-    <WrapperContent className={classNames('Chart', className)}>
-      <h2 className="Chart__title">
-        {current ? current?.name : 'chose city...'}
-      </h2>
-
+    <WrapperContent className={classNames(className)}>
       {!!average.length && (
         <div className="Chart">
-          <div className="Chart__container">
+          <div
+            className="Chart__container"
+            style={{ height: `${heightContainer + paddingContainer * 2}px` }}
+          >
             <div className="Chart__vertical-axe">
-              {verticalAxe.map(value => (
-                <div key={value} className="Chart__vertical-axe-value">
-                  {value}
-                  <div className="Chart__line" />
+              {labelsVerticalAxe.map(v => (
+                <div
+                  key={v}
+                  className={classNames('Chart__vertical-axe-item',
+                    { 'Chart__vertical-axe-item--highlight': isHighLight(v) })}
+                  style={styleVerticalAxeItem(v)}
+                >
+                  <div className="Chart__vertical-axe-label">{v}</div>
+                  <div className="Chart__vertical-axe-line" />
                 </div>
               ))}
             </div>
 
-            <div className="Chart__columns">
+            <div className="Chart__horizontalAxe">
               {average.map(el => (
                 <div
                   key={el.day}
                   className="Chart__column"
+                  onMouseEnter={() => setHoverValue(el.value)}
+                  onMouseLeave={() => setHoverValue(null)}
                 >
                   <div
-                    className="Chart__tower"
-                    style={{ height: `${Math.floor((el.value * 200) / maxYValue)}px` }}
+                    className={classNames('Chart__tower',
+                      { 'Chart__tower--up': el.value > 0 },
+                      { 'Chart__tower--down': el.value < 0 })}
+                    style={styleTower(el.value)}
                   >
-                    <div
-                      className="Chart__value"
-                      style={{ top: `${Math.floor((el.value * 100) / maxYValue / 2)}%` }}
-                    >
-                      {`${el.value}°C`}
-                    </div>
+                    &nbsp;
                   </div>
-                  <p className="Chart__day">
+
+                  <div
+                    className="Chart__tower-value"
+                    style={{
+                      top: `${-heightContainer + delta
+                        - (el.value * height) / 2}px`,
+                    }}
+                  >
+                    {`${el.value}°C`}
+                  </div>
+
+                  <div className="Chart__horizon-axe-label">
                     {el.day}
-                  </p>
+                  </div>
                 </div>
               ))}
             </div>
