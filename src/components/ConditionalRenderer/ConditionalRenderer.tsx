@@ -2,18 +2,18 @@ import { ReactNode, useEffect } from 'react';
 import { Loader } from '../Loader';
 
 interface ConditionalRendererProps {
-  child?: ReactNode;
+  children?: ReactNode;
   isLoading?: boolean;
   error?: string | null | undefined;
 }
 
 export const ConditionalRenderer: React.FC<ConditionalRendererProps> = ({
-  child,
+  children,
   isLoading = false,
   error,
 }) => {
   useEffect(() => {
-  }, [isLoading, error, child]);
+  }, [isLoading, error, children]);
 
   if (isLoading) {
     return <Loader />;
@@ -23,5 +23,5 @@ export const ConditionalRenderer: React.FC<ConditionalRendererProps> = ({
     return <>{error}</>;
   }
 
-  return <>{child}</>;
+  return <>{children}</>;
 };

@@ -1,12 +1,9 @@
 import { FC } from 'react';
 import classnames from 'classnames';
 
-// import { isExpired } from 'utils/isExpired';
-// import { selectCash } from 'store/features/cash/cashSlice';
 import { ConditionalRenderer } from '../ConditionalRenderer';
 import { CityData } from '../../types/City';
 import { Sort } from '../../types/Sort';
-// import { WeatherAverage } from '../../types/Weather';
 import { Td } from '../Td';
 import { useNumberFormat } from '../../hooks/useNumberFormat';
 import {
@@ -28,7 +25,6 @@ interface CityProps {
 export const City:FC<CityProps> = ({
   city,
 }) => {
-  // const [weather, setWeather] = useState<WeatherAverage | null | undefined>(null);
   const dispatch = useAppDispatch();
   const { name, population, countryCode } = city;
   const selected = useAppSelector(selectSelected);
@@ -42,13 +38,6 @@ export const City:FC<CityProps> = ({
     .find(e => e.id === city.geoNameId)?.message;
 
   const { weather } = city;
-
-  // useEffect(() => {
-  //   if (!city.weather && !isLoading) {
-  //       console.log(`${city.name} loading`, city.weather);
-  //       dispatch(getWeatherAsync(city));
-  //     }
-  // }, [city.weather])
 
   const handleSelectCity = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.preventDefault();
@@ -82,19 +71,21 @@ export const City:FC<CityProps> = ({
       <Td>{countryCode}</Td>
       <Td type={Sort.byPopulation}>{formatNumber(population)}</Td>
       <Td type={Sort.byMax}>
-        <ConditionalRenderer child={maxT} isLoading={isLoading} error={error} />
+        <ConditionalRenderer isLoading={isLoading} error={error}>
+          {maxT}
+        </ConditionalRenderer>
       </Td>
 
       <Td type={Sort.byMin}>
-        <ConditionalRenderer child={minT} isLoading={isLoading} error={error} />
+        <ConditionalRenderer isLoading={isLoading} error={error}>
+          {minT}
+        </ConditionalRenderer>
       </Td>
 
       <Td>
-        <ConditionalRenderer
-          child={averageWind}
-          isLoading={isLoading}
-          error={error}
-        />
+        <ConditionalRenderer isLoading={isLoading} error={error}>
+          {averageWind}
+        </ConditionalRenderer>
       </Td>
     </tr>
   );

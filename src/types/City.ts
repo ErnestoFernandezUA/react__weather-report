@@ -1,3 +1,4 @@
+import { Average } from '../components/Chart';
 import { WeatherAverage } from './Weather';
 
 export interface CityData {
@@ -22,4 +23,5 @@ export interface CityData {
   modificationDate: string;
 
   weather?: WeatherAverage | null;
+  weekWeather?: Average[] | null;
 }

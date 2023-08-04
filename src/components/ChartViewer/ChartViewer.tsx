@@ -1,16 +1,22 @@
 import {
-  FC, useEffect, useState,
+  FC, useEffect,
 } from 'react';
 import classNames from 'classnames';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
+  Status,
+  clearWeekWeather,
+  getWeekWeatherAsync,
   selectCurrent,
   selectDisplayed,
+  selectErrorWeekWeather,
+  selectStatusWeekWeather,
+  selectWeekWeather,
 } from '../../store/features/controls/controlsSlice';
 import { WrapperContent } from '../WrapperContent';
-import { getWeekWR } from '../../api/weather';
 import './ChartViewer.scss';
-import { Average, Chart } from '../Chart/Chart';
+import { Chart } from '../Chart/Chart';
+import { ConditionalRenderer } from '../ConditionalRenderer';
 
 interface ChartViewerProps {
   className?: string;
@@ -19,37 +25,22 @@ interface ChartViewerProps {
 export const ChartViewer: FC<ChartViewerProps> = ({ className }) => {
   const current = useAppSelector(selectCurrent);
   const displayed = useAppSelector(selectDisplayed);
-  const [average, setAverage] = useState<Average[]>([]);
+  const dispatch = useAppDispatch();
+  const weekWeather = useAppSelector(selectWeekWeather);
+  const isLoading = useAppSelector(selectStatusWeekWeather) === Status.pending;
+  const error = useAppSelector(selectErrorWeekWeather);
 
   useEffect(() => {
     if (!current) {
       return;
     }
 
-    getWeekWR(current)
-      .then(res => {
-        const newAverage = res.daily.time.map((dateString, index) => {
-          const date = new Date(dateString);
-          const dayOfMonth = date.getDate();
-          const month = date.getMonth();
-          const year = date.getFullYear();
-          const value = Math.ceil(((res.daily.temperature_2m_max[index]
-            + res.daily.temperature_2m_min[index]) / 2) * 10) / 10;
-
-          return {
-            day: dayOfMonth, value, month, year,
-          };
-        });
-
-        setAverage(newAverage);
-      })
-      // eslint-disable-next-line no-console
-      .catch(error => console.error(`Error during loading loadWeatherReport ${current.name}`, error));
+    dispatch(getWeekWeatherAsync(current));
   }, [current]);
 
   useEffect(() => {
     if (!displayed.length) {
-      setAverage([]);
+      dispatch(clearWeekWeather());
     }
   }, [displayed]);
 
@@ -59,7 +50,9 @@ export const ChartViewer: FC<ChartViewerProps> = ({ className }) => {
         {current ? current?.name : 'chose city...'}
       </h2>
 
-      <Chart average={average} />
+      <ConditionalRenderer isLoading={isLoading} error={error}>
+        <Chart average={weekWeather} />
+      </ConditionalRenderer>
     </WrapperContent>
   );
 };

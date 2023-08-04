@@ -3,7 +3,7 @@ import {
   createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit';
-import { getTomorrowWR } from '../../../api/weather';
+import { getTomorrowWR, getWeekWR } from '../../../api/weather';
 
 // eslint-disable-next-line import/no-cycle
 import { RootState } from '../..';
@@ -13,6 +13,7 @@ import { CityData } from '../../../types/City';
 import { isExpired } from '../../../utils/isExpired';
 import { addCashItem } from '../cash/cashSlice';
 import bigData from '../../../data/data.json';
+import { Average } from '../../../components/Chart';
 
 interface OptionType { value: string; label: string; }
 
@@ -52,6 +53,10 @@ export interface ControlState {
 
   loadingList: string[]
   errors: { id: string; message: string | null }[],
+
+  weekWeather: Average[];
+  statusWeekWeather: Status;
+  errorWeekWeather: string | null;
 }
 
 const initialState: ControlState = {
@@ -69,37 +74,11 @@ const initialState: ControlState = {
 
   loadingList: [],
   errors: [],
+
+  weekWeather: [],
+  statusWeekWeather: Status.idle,
+  errorWeekWeather: null,
 };
-
-// export const getWeatherAsync  = createAsyncThunk(
-//   'getWeather',
-//   async (
-//     city: CityData,
-//     { dispatch, rejectWithValue, getState }) => {
-//       const store = getState() as RootState;
-//       const cash = store.cash.storage;
-
-//       if (city.geoNameId in cash && !isExpired(cash[city.geoNameId].timerId)) {
-//         return city;
-//       }
-
-//       try {
-//         const res = await getTomorrowWR(city);
-
-//         const dailyMax = Math.max(...res.daily.temperature_2m_max);
-//         const dailyMin = Math.min(...res.daily.temperature_2m_min);
-//         const averageWind = Math.ceil(res.hourly.winddirection_10m.reduce((acc, el) => acc + el) / res.hourly.winddirection_10m.length);
-//         const daily_units = res.daily_units;
-
-//         dispatch(addCashItem( { ...city, weather: { dailyMax, dailyMin, averageWind, daily_units } }));
-
-//         return { ...city, weather: { dailyMax, dailyMin, averageWind, daily_units } };
-//       } catch (error) {
-//         console.error(`Error during loading loadWeather ${city.name}`, error);
-//         return rejectWithValue(`Error during loading loadWeather ${city.name} - ${error}` as string);
-//       }
-//   },
-// );
 
 export const getWeatherAsyncAll = createAsyncThunk(
   'getWeatherAll',
@@ -140,6 +119,7 @@ export const getWeatherAsyncAll = createAsyncThunk(
             weather: {
               dailyMax, dailyMin, averageWind, daily_units: dailyUnits,
             },
+            weekWeather: null,
           }));
 
           return {
@@ -147,6 +127,7 @@ export const getWeatherAsyncAll = createAsyncThunk(
             weather: {
               dailyMax, dailyMin, averageWind, daily_units: dailyUnits,
             },
+            weekWeather: null,
           };
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -176,6 +157,46 @@ export const getWeatherAsyncAll = createAsyncThunk(
     }
 
     return detailedWithWeather;
+  },
+);
+
+export const getWeekWeatherAsync = createAsyncThunk(
+  'getWeekWeather',
+  async (city: CityData, { getState, dispatch, rejectWithValue }) => {
+    const store = getState() as RootState;
+    const cash = store.cash.storage;
+
+    if (city.geoNameId in cash
+      && cash[city.geoNameId].city.weekWeather
+      && !isExpired(cash[city.geoNameId].timerId)) {
+      return cash[city.geoNameId].city.weekWeather;
+    }
+
+    try {
+      const res = await getWeekWR(city);
+
+      const weekWeather: Average[] = res.daily.time.map((dateString, index) => {
+        const date = new Date(dateString);
+        const dayOfMonth = date.getDate();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        const value = Math.ceil(((res.daily.temperature_2m_max[index]
+          + res.daily.temperature_2m_min[index]) / 2) * 10) / 10;
+
+        return {
+          day: dayOfMonth, value, month, year,
+        };
+      });
+
+      dispatch(addCashItem({ ...city, weekWeather }));
+
+      return weekWeather;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Error during loading weekWeather ${city.name}`, error);
+
+      return rejectWithValue(`Error during loading weekWeather ${city.name} - ${error}`);
+    }
   },
 );
 
@@ -225,9 +246,12 @@ const controlSlice = createSlice({
       }
     },
     setCurrent: (state: ControlState, { payload }: PayloadAction<CityData>) => {
-      state.current = state.current?.geoNameId !== payload.geoNameId
-        ? payload
-        : null;
+      if (state.current?.geoNameId !== payload.geoNameId) {
+        state.current = payload;
+      } else {
+        state.current = null;
+        state.weekWeather = initialState.weekWeather;
+      }
     },
     checkCurrent: (state: ControlState) => {
       const isVisible = state.displayed
@@ -236,6 +260,11 @@ const controlSlice = createSlice({
       state.current = isVisible
         ? state.current
         : state.displayed[0] || state.selected[0] || null;
+    },
+    clearWeekWeather: (state: ControlState) => {
+      state.weekWeather = initialState.weekWeather;
+      state.errorWeekWeather = initialState.errorWeekWeather;
+      state.statusWeekWeather = initialState.statusWeekWeather;
     },
     sortTable: (
       state: ControlState, { payload }: PayloadAction<Sort | undefined>,
@@ -277,21 +306,6 @@ const controlSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    // .addCase(getWeatherAsync.pending, (state: ControlState, { meta }) => {
-    //   state.loadingList = [ ...state.loadingList, meta.arg.geoNameId];
-    //   state.errors = state.errors.filter(e => e.id !== meta.arg.geoNameId);
-    // })
-    // .addCase(getWeatherAsync.fulfilled, (state, { meta, payload }) => {
-    //   state.loadingList = state.loadingList.filter(c => c === meta.arg.geoNameId);
-    //   state.displayed = state.displayed.map(c => c.geoNameId !== meta.arg.geoNameId
-    //     ? c : payload);
-    //   console.log(meta.arg.name, 'added');
-    // })
-    // .addCase(getWeatherAsync.rejected, (state, { payload, meta}) => {
-    //   state.loadingList = state.loadingList.filter(c => c === meta.arg.geoNameId);
-    //   state.errors = [ ...state.errors, ({ id: meta.arg.geoNameId, message: payload as string })];
-    // })
-
       .addCase(getWeatherAsyncAll.pending, (
         state: ControlState,
       ) => {
@@ -308,6 +322,19 @@ const controlSlice = createSlice({
         state.displayed = detailedWithWeather || [];
         state.errors = errors || [];
         state.status = Status.idle;
+      })
+
+      .addCase(getWeekWeatherAsync.pending, (state: ControlState) => {
+        state.statusWeekWeather = Status.pending;
+        state.errorWeekWeather = null;
+      })
+      .addCase(getWeekWeatherAsync.fulfilled, (state, { payload }) => {
+        state.statusWeekWeather = Status.idle;
+        state.weekWeather = payload || [];
+      })
+      .addCase(getWeekWeatherAsync.rejected, (state, action) => {
+        state.statusWeekWeather = Status.idle;
+        state.errorWeekWeather = action.payload as string;
       });
   },
 });
@@ -320,6 +347,7 @@ export const {
   removeSelected,
   setCurrent,
   checkCurrent,
+  clearWeekWeather,
   sortTable,
   setDisplayed,
   resetState,
@@ -329,13 +357,20 @@ export const selectAllData = (state: RootState) => state.controls.allData;
 export const selectAllKeys = (state: RootState) => state.controls.allKeys;
 
 export const selectSelectedCountries
-= (state: RootState) => state.controls.selectedCountries;
+  = (state: RootState) => state.controls.selectedCountries;
 export const selectSelected = (state: RootState) => state.controls.selected;
 export const selectDisplayed = (state: RootState) => state.controls.displayed;
 export const selectCurrent = (state: RootState) => state.controls.current;
 export const selectSortBy = (state: RootState) => state.controls.sortBy;
 export const selectOrder = (state: RootState) => state.controls.order;
 export const selectLoadingList
-= (state: RootState) => state.controls.loadingList;
+  = (state: RootState) => state.controls.loadingList;
 export const selectErrors = (state: RootState) => state.controls.errors;
 export const selectStatus = (state: RootState) => state.controls.status;
+
+export const selectWeekWeather
+  = (state: RootState) => state.controls.weekWeather;
+export const selectStatusWeekWeather
+  = (state: RootState) => state.controls.statusWeekWeather;
+export const selectErrorWeekWeather
+  = (state: RootState) => state.controls.errorWeekWeather;

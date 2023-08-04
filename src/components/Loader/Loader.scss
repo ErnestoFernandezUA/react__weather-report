@@ -1,5 +1,4 @@
 .Loader {
-  width: 100%;
   display: flex;
   justify-content: center;
 }
@@ -7,7 +6,9 @@
 .Loader__container {
   transform-origin: center;
   animation: rotate 2s linear infinite;
-  line-height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes rotate {
