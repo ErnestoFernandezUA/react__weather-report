@@ -16,7 +16,6 @@ import {
 import { WrapperContent } from '../WrapperContent';
 import './ChartViewer.scss';
 import { Chart } from '../Chart/Chart';
-import { ConditionalRenderer } from '../ConditionalRenderer';
 
 interface ChartViewerProps {
   className?: string;
@@ -50,9 +49,7 @@ export const ChartViewer: FC<ChartViewerProps> = ({ className }) => {
         {current ? current?.name : 'chose city...'}
       </h2>
 
-      <ConditionalRenderer isLoading={isLoading} error={error}>
-        <Chart average={weekWeather} />
-      </ConditionalRenderer>
+      <Chart data={weekWeather} isLoading={isLoading} error={error} />
     </WrapperContent>
   );
 };

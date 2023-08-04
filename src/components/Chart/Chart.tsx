@@ -4,6 +4,7 @@ import {
 import classNames from 'classnames';
 import { WrapperContent } from '../WrapperContent';
 import './Chart.scss';
+import { ConditionalRenderer } from '../ConditionalRenderer';
 
 export interface Average {
   value: number,
@@ -12,14 +13,18 @@ export interface Average {
   year: number,
 }
 interface ChartProps {
-  average: Average[];
+  data: Average[];
   className?: string;
+  isLoading?: boolean;
+  error?: string | null;
   heightChart?: number;
 }
 
 export const Chart: FC<ChartProps> = ({
   className,
-  average,
+  data,
+  isLoading = false,
+  error = '',
   heightChart = 240,
 }) => {
   const [labelsVerticalAxe, setLabelsVerticalAxe] = useState<number[]>([]);
@@ -32,8 +37,8 @@ export const Chart: FC<ChartProps> = ({
   const heightContainer = heightChart - 2 * paddingContainer;
 
   useEffect(() => {
-    const maxValue = Math.max(...average.map(el => el.value));
-    const minValue = Math.min(...average.map(el => el.value));
+    const maxValue = Math.max(...data.map(el => el.value));
+    const minValue = Math.min(...data.map(el => el.value));
     let newStep = 1;
 
     if (Math.abs(maxValue) > 30 || Math.abs(minValue) > 30) {
@@ -65,7 +70,7 @@ export const Chart: FC<ChartProps> = ({
     setLabelsVerticalAxe(newLabels);
     setHeight(newHight);
     setDelta(newDelta);
-  }, [average]);
+  }, [data]);
 
   const styleVerticalAxeItem = (v: number) => ({
     top: `${delta - v * height}px`,
@@ -83,59 +88,61 @@ export const Chart: FC<ChartProps> = ({
 
   return (
     <WrapperContent className={classNames(className)}>
-      {!!average.length && (
+      {!!data.length && (
         <div className="Chart">
           <div
             className="Chart__container"
             style={{ height: `${heightContainer + paddingContainer * 2}px` }}
           >
-            <div className="Chart__vertical-axe">
-              {labelsVerticalAxe.map(v => (
-                <div
-                  key={v}
-                  className={classNames('Chart__vertical-axe-item',
-                    { 'Chart__vertical-axe-item--highlight': isHighLight(v) })}
-                  style={styleVerticalAxeItem(v)}
-                >
-                  <div className="Chart__vertical-axe-label">{v}</div>
-                  <div className="Chart__vertical-axe-line" />
-                </div>
-              ))}
-            </div>
-
-            <div className="Chart__horizontalAxe">
-              {average.map(el => (
-                <div
-                  key={el.day}
-                  className="Chart__column"
-                  onMouseEnter={() => setHoverValue(el.value)}
-                  onMouseLeave={() => setHoverValue(null)}
-                >
+            <ConditionalRenderer isLoading={isLoading} error={error}>
+              <div className="Chart__axeY">
+                {labelsVerticalAxe.map(v => (
                   <div
-                    className={classNames('Chart__tower',
-                      { 'Chart__tower--up': el.value > 0 },
-                      { 'Chart__tower--down': el.value < 0 })}
-                    style={styleTower(el.value)}
+                    key={v}
+                    className={classNames('Chart__axeY-item',
+                      { 'Chart__axeY-item--highlight': isHighLight(v) })}
+                    style={styleVerticalAxeItem(v)}
                   >
-                    &nbsp;
+                    <div className="Chart__axeY-label">{v}</div>
+                    <div className="Chart__axeY-line" />
                   </div>
+                ))}
+              </div>
 
+              <div className="Chart__axeX">
+                {data.map(el => (
                   <div
-                    className="Chart__tower-value"
-                    style={{
-                      top: `${-heightContainer + delta
-                        - (el.value * height) / 2}px`,
-                    }}
+                    key={el.day}
+                    className="Chart__column"
+                    onMouseEnter={() => setHoverValue(el.value)}
+                    onMouseLeave={() => setHoverValue(null)}
                   >
-                    {`${el.value}°C`}
-                  </div>
+                    <div
+                      className={classNames('Chart__tower',
+                        { 'Chart__tower--up': el.value > 0 },
+                        { 'Chart__tower--down': el.value < 0 })}
+                      style={styleTower(el.value)}
+                    >
+                      &nbsp;
+                    </div>
 
-                  <div className="Chart__horizon-axe-label">
-                    {el.day}
+                    <div
+                      className="Chart__tower-value"
+                      style={{
+                        top: `${-heightContainer + delta
+                          - (el.value * height) / 2}px`,
+                      }}
+                    >
+                      {`${el.value}°C`}
+                    </div>
+
+                    <div className="Chart__horizon-axe-label">
+                      {el.day}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ConditionalRenderer>
           </div>
         </div>
       )}
